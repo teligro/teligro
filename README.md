@@ -1,4 +1,4 @@
-## WP Telegram Pro [[Download Stable Version](https://wordpress.org/plugins/wp-telegram-pro)]
+## Teligro [[Download Stable Version](https://wordpress.org/plugins/teligro)]
 
 [![MIT Licence](https://badges.frapsoft.com/os/mit/mit.svg)](https://opensource.org/licenses/mit-license.php)   
 
@@ -135,7 +135,7 @@ Changelog
 * Admin can force update telegram keyboard
 
 **V 1.1**
-* Display Telegram channel members count with shortcode: `[channel_members_wptp channel="channel username" formatting="1"]`
+* Display Telegram channel members count with shortcode: `[channel_members_teligro channel="channel username" formatting="1"]`
 
 **V 1.0**
 * Receive command from Telegram
@@ -158,4 +158,4 @@ Develop Plan
 
 Warning
 -----------
-The plugin is in development, Not recommended in the product. You can download stable version in [WordPress.org plugins repository](https://wordpress.org/plugins/wp-telegram-pro)
+The plugin is in development, Not recommended in the product. You can download stable version in [WordPress.org plugins repository](https://wordpress.org/plugins/teligro)

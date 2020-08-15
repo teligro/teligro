@@ -1,27 +1,25 @@
 <?php
 
-namespace wptelegrampro;
+namespace teligro;
 
-global $WordPressWPTP;
-
-class WordPressWPTP extends WPTelegramPro {
+class WordPress extends Teligro {
 	public static $instance = null;
-	protected $tabID = 'wordpress-wptp-tab';
+	protected $tabID = 'wordpress-teligro-tab';
 
 	public function __construct() {
 		parent::__construct();
-		$this->words = apply_filters( 'wptelegrampro_words', $this->words );
+		$this->words = apply_filters( 'teligro_words', $this->words );
 
-		add_filter( 'wptelegrampro_patterns_tags', [ $this, 'patterns_tags' ] );
-		add_filter( 'wptelegrampro_settings_tabs', [ $this, 'settings_tab' ], 10 );
-		add_action( 'wptelegrampro_settings_content', [ $this, 'settings_content' ] );
-		add_action( 'wptelegrampro_inline_keyboard_response', array( $this, 'inline_keyboard' ) );
-		add_action( 'wptelegrampro_keyboard_response', array( $this, 'post_action' ) );
-		add_action( 'wptelegrampro_keyboard_response', array( $this, 'check_keyboard_need_update' ), 9999 );
-		add_filter( 'wptelegrampro_before_settings_update_message', array( $this, 'update_api_token' ), 10, 3 );
-		add_filter( 'wptelegrampro_option_settings', array( $this, 'update_bot_username' ), 100, 2 );
-		add_filter( 'wptelegrampro_default_keyboard', [ $this, 'default_keyboard' ], 10 );
-		add_filter( 'wptelegrampro_default_commands', [ $this, 'default_commands' ], 10 );
+		add_filter( 'teligro_patterns_tags', [ $this, 'patterns_tags' ] );
+		add_filter( 'teligro_settings_tabs', [ $this, 'settings_tab' ], 10 );
+		add_action( 'teligro_settings_content', [ $this, 'settings_content' ] );
+		add_action( 'teligro_inline_keyboard_response', array( $this, 'inline_keyboard' ) );
+		add_action( 'teligro_keyboard_response', array( $this, 'post_action' ) );
+		add_action( 'teligro_keyboard_response', array( $this, 'check_keyboard_need_update' ), 9999 );
+		add_filter( 'teligro_before_settings_update_message', array( $this, 'update_api_token' ), 10, 3 );
+		add_filter( 'teligro_option_settings', array( $this, 'update_bot_username' ), 100, 2 );
+		add_filter( 'teligro_default_keyboard', [ $this, 'default_keyboard' ], 10 );
+		add_filter( 'teligro_default_commands', [ $this, 'default_commands' ], 10 );
 
 		add_action( 'show_user_profile', [ $this, 'user_profile' ] );
 		add_action( 'edit_user_profile', [ $this, 'user_profile' ] );
@@ -48,23 +46,23 @@ class WordPressWPTP extends WPTelegramPro {
 	function login_url() {
 		$url = wp_login_url();
 		$url .= strpos( $url, '?' ) === false ? '?' : '&';
-		$url .= 'wptpurid=' . $this->user_field( 'rand_id' );
+		$url .= 'teligrourid=' . $this->user_field( 'rand_id' );
 
 		return $url;
 	}
 
 	function user_init() {
-		if ( isset( $_GET['wptpurid'] ) && is_numeric( $_GET['wptpurid'] ) ) {
+		if ( isset( $_GET['teligrourid'] ) && is_numeric( $_GET['teligrourid'] ) ) {
 			if ( is_user_logged_in() ) {
-				$this->check_user_id( get_current_user_id(), $_GET['wptpurid'] );
+				$this->check_user_id( get_current_user_id(), $_GET['teligrourid'] );
 			} else {
-				setcookie( 'wptpurid', $_GET['wptpurid'], current_time( 'U' ) + ( 60 * 60 * 12 * 7 ) );
+				setcookie( 'teligrourid', $_GET['teligrourid'], current_time( 'U' ) + ( 60 * 60 * 12 * 7 ) );
 			}
 		}
 	}
 
 	function user_disconnect() {
-		if ( isset( $_GET['user-disconnect-wptp'] ) && $this->disconnect_telegram_wp_user( isset( $_GET['user_id'] ) ? $_GET['user_id'] : null ) ) {
+		if ( isset( $_GET['user-disconnect-teligro'] ) && $this->disconnect_telegram_wp_user( isset( $_GET['user_id'] ) ? $_GET['user_id'] : null ) ) {
 			if ( isset( $_GET['user_id'] ) && get_current_user_id() != $_GET['user_id'] )
 				$disconnect_message = $this->words['user_disconnect'];
 			else
@@ -101,7 +99,7 @@ class WordPressWPTP extends WPTelegramPro {
 
 		$bot_user = $this->set_user( array( 'wp_id' => $user->ID ) );
 		?>
-        <h2 id="wptp"><?php _e( 'Telegram', $this->plugin_key ); ?></h2>
+        <h2 id="teligro"><?php _e( 'Telegram', $this->plugin_key ); ?></h2>
         <table class="form-table">
             <tr>
 				<?php if ( $bot_user ) { ?>
@@ -169,7 +167,7 @@ class WordPressWPTP extends WPTelegramPro {
 	}
 
 	function default_keyboard( $keyboard ) {
-		$this->words  = apply_filters( 'wptelegrampro_words', $this->words );
+		$this->words  = apply_filters( 'teligro_words', $this->words );
 		$new_keyboard = array();
 
 		if ( $this->get_option( 'display_posts_buttons', false ) )
@@ -189,21 +187,21 @@ class WordPressWPTP extends WPTelegramPro {
 
 	function update_api_token( $update_message, $current_option, $new_option ) {
 		if ( $this->get_option( 'api_token' ) != $new_option['api_token'] ) {
-			$telegram = new TelegramWPTP( $new_option['api_token'] );
+			$telegram = new Telegram( $new_option['api_token'] );
 			$webHook  = $this->webHookURL();
-			$webHook  = apply_filters( 'wptelegrampro_set_webhook', $webHook );
+			$webHook  = apply_filters( 'teligro_set_webhook', $webHook );
 			$set      = $telegram->setWebhook( $webHook['url'] );
 
 			if ( $set ) {
 				$update_message .= $this->message( __( 'Set Webhook Successfully.', $this->plugin_key ) );
-				update_option( 'wptp-rand-url', $webHook['rand'], false );
+				update_option( 'teligro-rand-url', $webHook['rand'], false );
 				$this->telegram = $telegram;
 			} else
 				$update_message .= $this->message( __( 'Set Webhook with Error!', $this->plugin_key ), 'error' );
 		}
 
 		if ( isset( $new_option['force_update_keyboard'] ) )
-			update_option( 'update_keyboard_time_wptp', current_time( 'U' ), false );
+			update_option( 'update_keyboard_time_teligro', current_time( 'U' ), false );
 
 		return $update_message;
 	}
@@ -261,14 +259,14 @@ class WordPressWPTP extends WPTelegramPro {
 	function user_login_notification( $user_login, $user ) {
 		$bot_user = $this->set_user( array( 'wp_id' => $user->ID ) );
 		if ( $bot_user ) {
-			$userIP = HelpersWPTP::getUserIP();
+			$userIP = Helpers::getUserIP();
 			$text   = "*" . sprintf( __( 'Dear %s', $this->plugin_key ), $user->display_name ) . "*\n";
 			/* translators: 1: User name 2: Date 3: Time 4: IP address */
 			$text .= sprintf( __( 'Your successful login to %1$s account on date %2$s at %3$s with %4$s IP address done.',
-				$this->plugin_key ), $user_login, HelpersWPTP::localeDate( null, "l j F Y" ),
-				HelpersWPTP::localeDate( null, "H:i" ), "[{$userIP}](http://{$userIP}.ipaddress.com)" );
+				$this->plugin_key ), $user_login, Helpers::localeDate( null, "l j F Y" ),
+				Helpers::localeDate( null, "H:i" ), "[{$userIP}](http://{$userIP}.ipaddress.com)" );
 
-			$text = apply_filters( 'wptelegrampro_user_login_notification_text', $text, $user_login, $user );
+			$text = apply_filters( 'teligro_user_login_notification_text', $text, $user_login, $user );
 
 			if ( $text ) {
 				$keyboard  = array(
@@ -312,7 +310,7 @@ class WordPressWPTP extends WPTelegramPro {
 				)
 			);
 			$keyboards = $this->telegram->keyboard( $keyboard, 'inline_keyboard' );
-			$userIP    = HelpersWPTP::getUserIP();
+			$userIP    = Helpers::getUserIP();
 
 			$text = "*" . __( 'User login', $this->plugin_key ) . "*\n\n";
 
@@ -320,9 +318,9 @@ class WordPressWPTP extends WPTelegramPro {
 			$text .= __( 'Name', $this->plugin_key ) . ': ' . $user->display_name . "\n";
 			$text .= __( 'User IP', $this->plugin_key ) . ': ' . "[{$userIP}](http://{$userIP}.ipaddress.com)" . "\n";
 
-			$text .= __( 'Date', $this->plugin_key ) . ': ' . HelpersWPTP::localeDate() . "\n";
+			$text .= __( 'Date', $this->plugin_key ) . ': ' . Helpers::localeDate() . "\n";
 
-			$text = apply_filters( 'wptelegrampro_admin_users_login_notification_text', $text, $user_login, $user );
+			$text = apply_filters( 'teligro_admin_users_login_notification_text', $text, $user_login, $user );
 
 			if ( $text ) {
 				$this->telegram->disable_web_page_preview( true );
@@ -345,7 +343,7 @@ class WordPressWPTP extends WPTelegramPro {
 		$text = $email['message'];
 		$text = str_replace( [ __( 'Email' ), __( 'emailed' ), __( 'email' ) ], __( 'notification', $this->plugin_key ),
 			$text );
-		$text = apply_filters( 'wptelegrampro_admin_recovery_mode_notification_text', $text, $email, $url );
+		$text = apply_filters( 'teligro_admin_recovery_mode_notification_text', $text, $email, $url );
 
 		if ( ! $text )
 			return $email;
@@ -374,7 +372,7 @@ class WordPressWPTP extends WPTelegramPro {
 	 */
 	function admin_auto_core_update_notification( $email, $type, $core_update, $result ) {
 		$text = $email['body'];
-		$text = apply_filters( 'wptelegrampro_admin_auto_core_update_notification_text', $text, $email, $type,
+		$text = apply_filters( 'teligro_admin_auto_core_update_notification_text', $text, $email, $type,
 			$core_update, $result );
 
 		if ( ! $text )
@@ -417,7 +415,7 @@ class WordPressWPTP extends WPTelegramPro {
 				)
 			);
 			$keyboards  = $this->telegram->keyboard( $keyboard, 'inline_keyboard' );
-			$userIP     = HelpersWPTP::getUserIP();
+			$userIP     = Helpers::getUserIP();
 			$user_roles = $this->wp_user_roles();
 			$user_role  = $user_roles[ $user_role ];
 			$text       = "*" . __( 'Register a new user', $this->plugin_key ) . "*\n\n";
@@ -431,9 +429,9 @@ class WordPressWPTP extends WPTelegramPro {
 				$text .= __( 'User IP',
 						$this->plugin_key ) . ': ' . "[{$userIP}](http://{$userIP}.ipaddress.com)" . "\n";
 
-			$text .= __( 'Date', $this->plugin_key ) . ': ' . HelpersWPTP::localeDate() . "\n";
+			$text .= __( 'Date', $this->plugin_key ) . ': ' . Helpers::localeDate() . "\n";
 
-			$text = apply_filters( 'wptelegrampro_admin_register_new_user_notification_text', $text, $user_id, $user );
+			$text = apply_filters( 'teligro_admin_register_new_user_notification_text', $text, $user_id, $user );
 
 			if ( $text ) {
 				$this->telegram->disable_web_page_preview( true );
@@ -472,7 +470,7 @@ class WordPressWPTP extends WPTelegramPro {
 				if ( ! empty( $comment->comment_content ) )
 					$text .= __( 'Comment' ) . ":\n" . stripslashes( strip_tags( $comment->comment_content ) ) . "\n";
 
-				$text = apply_filters( 'wptelegrampro_wp_new_comment_notification_text', $text, $comment, $comment_ID );
+				$text = apply_filters( 'teligro_wp_new_comment_notification_text', $text, $comment, $comment_ID );
 
 				if ( $text )
 					foreach ( $users as $user ) {
@@ -541,7 +539,7 @@ class WordPressWPTP extends WPTelegramPro {
 		if ( ! is_array( $posts['parameter']['post_type'] ) )
 			$posts['parameter']['post_type'] = array( $posts['parameter']['post_type'] );
 
-		$image_send_mode = apply_filters( 'wptelegrampro_image_send_mode', 'image_path' );
+		$image_send_mode = apply_filters( 'teligro_image_send_mode', 'image_path' );
 
 		$posts_ = array();
 		foreach ( $posts['parameter']['post_type'] as $post_type ) {
@@ -550,7 +548,7 @@ class WordPressWPTP extends WPTelegramPro {
 		}
 
 		if ( count( $posts_ ) > 0 ) {
-			$this->words  = apply_filters( 'wptelegrampro_words', $this->words );
+			$this->words  = apply_filters( 'teligro_words', $this->words );
 			$i            = 1;
 			$current_page = $this->user['page'];
 			//$this->telegram->sendMessage(serialize($posts));
@@ -590,11 +588,11 @@ class WordPressWPTP extends WPTelegramPro {
 	}
 
 	function check_keyboard_need_update() {
-		$system_time = get_option( 'update_keyboard_time_wptp' );
+		$system_time = get_option( 'update_keyboard_time_teligro' );
 		if ( ! empty( $system_time ) ) {
 			$update_keyboard_time = $this->get_user_meta( 'update_keyboard_time' );
 			if ( empty( $update_keyboard_time ) || $system_time > $update_keyboard_time ) {
-				$default_keyboard = apply_filters( 'wptelegrampro_default_keyboard', array() );
+				$default_keyboard = apply_filters( 'teligro_default_keyboard', array() );
 				$default_keyboard = $this->telegram->keyboard( $default_keyboard );
 				$this->telegram->sendMessage( __( 'Update' ), $default_keyboard );
 				$this->update_user_meta( 'update_keyboard_time', current_time( 'U' ) );
@@ -604,19 +602,17 @@ class WordPressWPTP extends WPTelegramPro {
 
 	function post_action( $user_text ) {
 		$this->set_user();
-		$this->words    = $words = apply_filters( 'wptelegrampro_words', $this->words );
+		$this->words    = $words = apply_filters( 'teligro_words', $this->words );
 		$current_status = $this->user_field( 'status' );
 
 		if ( $user_text == '/start' || strpos( $user_text, '/start' ) !== false ) {
 			$message          = $this->get_option( 'start_command' );
 			$message          = empty( trim( $message ) ) ? __( 'Welcome!', $this->plugin_key ) : $message;
-			$default_keyboard = apply_filters( 'wptelegrampro_default_keyboard', array() );
+			$default_keyboard = apply_filters( 'teligro_default_keyboard', array() );
 			$default_keyboard = $this->telegram->keyboard( $default_keyboard );
 			$this->telegram->sendMessage( $message, $default_keyboard );
-
 		} elseif ( $user_text == '/search' || $user_text == $words['search'] ) {
 			$this->telegram->sendMessage( __( 'Enter word for search:', $this->plugin_key ) );
-
 		} elseif ( $current_status == 'search' ) {
 			$this->update_user_meta( 'search_query', $user_text );
 			$this->update_user_meta( 'category_id', null );
@@ -628,7 +624,6 @@ class WordPressWPTP extends WPTelegramPro {
 			);
 			$posts = $this->query( $args );
 			$this->send_posts( $posts );
-
 		} elseif ( $user_text == '/posts' || $user_text == $words['posts'] ) {
 			$this->update_user( array( 'page' => 1 ) );
 			$this->update_user_meta( 'category_id', null );
@@ -639,7 +634,6 @@ class WordPressWPTP extends WPTelegramPro {
 			);
 			$posts = $this->query( $args );
 			$this->send_posts( $posts );
-
 		} elseif ( $user_text == '/categories' || $user_text == $words['categories'] ) {
 			$posts_category = $this->get_tax_keyboard( 'category', 'category', 'parent' );
 			$keyboard       = $this->telegram->keyboard( $posts_category, 'inline_keyboard' );
@@ -673,7 +667,6 @@ class WordPressWPTP extends WPTelegramPro {
 
 			$products = $this->query( $args );
 			$this->send_posts( $products );
-
 		} elseif ( $this->button_data_check( $button_data, 'category' ) ) {
 			$this->update_user( array( 'page' => 1 ) );
 			$category_id = intval( end( explode( '_', $button_data ) ) );
@@ -690,7 +683,6 @@ class WordPressWPTP extends WPTelegramPro {
 			} else {
 				$this->telegram->answerCallbackQuery( __( 'Post Category Invalid!', $this->plugin_key ) );
 			}
-
 		} elseif ( $this->button_data_check( $button_data, 'comment' ) ) {
 			$button_data = explode( '_', $button_data );
 			$comment_ID  = $button_data[2];
@@ -734,7 +726,7 @@ class WordPressWPTP extends WPTelegramPro {
 		$post_types    = get_post_types( [ 'public' => true, 'exclude_from_search' => false, 'show_ui' => true ],
 			"objects" );
 		?>
-        <div id="<?php echo $this->tabID ?>-content" class="wptp-tab-content">
+        <div id="<?php echo $this->tabID ?>-content" class="teligro-tab-content">
             <table>
                 <tr>
                     <td><label for="api_token"><?php _e( 'Telegram Bot API Token', $this->plugin_key ) ?></label>
@@ -743,7 +735,7 @@ class WordPressWPTP extends WPTelegramPro {
                         <input type="password" name="api_token" id="api_token"
                                value="<?php echo $this->get_option( 'api_token' ) ?>"
                                class="regular-text ltr api-token">
-                        <span class="dashicons dashicons-info bot-info-wptp"></span>
+                        <span class="dashicons dashicons-info bot-info-teligro"></span>
                         <input type="hidden" name="api_bot_username"
                                value="<?php echo $this->get_option( 'api_bot_username' ) ?>">
                     </td>
@@ -852,9 +844,9 @@ class WordPressWPTP extends WPTelegramPro {
 								$this->plugin_key ); ?>
 							<?php
 							if ( ! $this->user )
-								echo '<div class="wptp-warning-h3">' . __( 'You need to setup your Telegram Connectivity before enabling this setting to avoid yourself being blocked from next time login.',
+								echo '<div class="teligro-warning-h3">' . __( 'You need to setup your Telegram Connectivity before enabling this setting to avoid yourself being blocked from next time login.',
 										$this->plugin_key ) .
-								     '<br><a href="profile.php#wptp">' . __( 'Click here to connect the WordPress profile to the Telegram account',
+								     '<br><a href="profile.php#teligro">' . __( 'Click here to connect the WordPress profile to the Telegram account',
 										$this->plugin_key ) . '</a>' .
 								     '</div>';
 							?>
@@ -961,14 +953,14 @@ class WordPressWPTP extends WPTelegramPro {
 
 	/**
 	 * Returns an instance of class
-	 * @return WordPressWPTP
+	 * @return WordPress
 	 */
 	static function getInstance() {
 		if ( self::$instance == null )
-			self::$instance = new WordPressWPTP();
+			self::$instance = new WordPress();
 
 		return self::$instance;
 	}
 }
 
-$WordPressWPTP = WordPressWPTP::getInstance();
+WordPress::getInstance();

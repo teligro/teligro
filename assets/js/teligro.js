@@ -1,5 +1,5 @@
 jQuery(function ($) {
-    const max_channel_wptp = 20;
+    const max_channel_teligro = 20;
     var wpDoAjax = false;
 
     $.fn.extend({
@@ -50,7 +50,7 @@ jQuery(function ($) {
     var reload_check = false;
     var publish_button_click = false;
     jQuery(document).ready(function ($) {
-        if ($('.wptp-metabox').length > 0)
+        if ($('.teligro-metabox').length > 0)
             add_publish_button_click = setInterval(function () {
                 $publish_button = jQuery('.edit-post-header__settings .editor-post-publish-button');
                 if ($publish_button && !publish_button_click) {
@@ -64,7 +64,7 @@ jQuery(function ($) {
                             if (!postsaving) return;
                             clearInterval(reloader);
 
-                            $('.wptp-metabox .item').each(function () {
+                            $('.teligro-metabox .item').each(function () {
                                 var value = $(this).find(".send-to-channel:checked").val();
                                 if (value == '1')
                                     $(this).find(".send-to-channel-no").prop("checked", true);
@@ -74,15 +74,15 @@ jQuery(function ($) {
                 }
             }, 1000);
 
-        $('#proxy-wptp-tab-content input[type=radio][name=proxy_status]').unbind('change').change(function () {
-            $('.proxy-status-wptp').hide();
+        $('#proxy-teligro-tab-content input[type=radio][name=proxy_status]').unbind('change').change(function () {
+            $('.proxy-status-teligro').hide();
             $('#proxy_' + this.value).show();
         });
 
-        function wptp_init() {
-            $('.accordion-wptp .toggle').unbind('click').on('click', function () {
+        function teligro_init() {
+            $('.accordion-teligro .toggle').unbind('click').on('click', function () {
                 var $this = $(this);
-                $(".accordion-wptp .toggle").each(function (index) {
+                $(".accordion-teligro .toggle").each(function (index) {
                     if ($(this).parent().index() != $this.parent().index())
                         $(this).removeClass('active').parent().find('.panel').slideUp();
                 });
@@ -93,90 +93,90 @@ jQuery(function ($) {
                 });
             });
 
-            $('input.channel-username-wptp').unbind('input').on('input', function (e) {
+            $('input.channel-username-teligro').unbind('input').on('input', function (e) {
                 if ($(this).val().length == 0) {
-                    title = wptp.new_channel;
-                    $(this).parent().find('.channel-info-wptp').hide();
+                    title = teligro.new_channel;
+                    $(this).parent().find('.channel-info-teligro').hide();
                 } else {
                     title = '@' + $(this).val();
-                    $(this).parent().find('.channel-info-wptp').show();
+                    $(this).parent().find('.channel-info-teligro').show();
                 }
                 $(this).closest('.item').find('.toggle').html(title);
             });
 
-            $('.remove-channel-wptp').unbind('click').on('click', function () {
-                var message = wptp.confirm_remove_channel;
-                var channel_username = $(this).parent().find('.channel-username-wptp').val();
+            $('.remove-channel-teligro').unbind('click').on('click', function () {
+                var message = teligro.confirm_remove_channel;
+                var channel_username = $(this).parent().find('.channel-username-teligro').val();
                 if ($.trim(channel_username).length > 0)
                     message = message.replace('%', '@' + channel_username);
                 else
                     message = message.replace('%', '');
                 var r = confirm(message);
                 if (r == true) {
-                    if ($('.channel-list-wptp .item').length === 1)
+                    if ($('.channel-list-teligro .item').length === 1)
                         add_channel_item(false);
                     $(this).closest('.item').remove();
-                    if ($('.channel-list-wptp .item').length < max_channel_wptp)
-                        $('.channel-list-wptp .add-channel').prop('disabled', false);
+                    if ($('.channel-list-teligro .item').length < max_channel_teligro)
+                        $('.channel-list-teligro .add-channel').prop('disabled', false);
                 }
             });
 
-            $('.patterns-select-wptp').unbind('change').change(function () {
-                var $tcp = $(this).parent().find('div.message-pattern-wptp > .emojionearea-editor');
-                if ($tcp.length == 0) {
-                    var $tcp = $(this).parent().find('textarea.message-pattern-wptp');
+            $('.patterns-select-teligro').unbind('change').change(function () {
+                var $tcp = $(this).parent().find('div.message-pattern-teligro > .emojionearea-editor');
+                if ($tcp.length === 0) {
+                    $tcp = $(this).parent().find('textarea.message-pattern-teligro');
                     $tcp.insertAtCaret($(this).val());
                 } else
                     $tcp.html($tcp.html() + $(this).val()).caret('pos', $tcp.text().length).focus();
             });
 
-            $(".wptp-wrap textarea.emoji").emojioneArea({
+            $(".teligro-wrap textarea.emoji").emojioneArea({
                 autoHideFilters: true,
                 pickerPosition: 'bottom',
                 filtersPosition: 'bottom',
             });
 
-            $('.channel-info-wptp').unbind('click').on('click', function () {
+            $('.channel-info-teligro').unbind('click').on('click', function () {
                 var $this = $(this);
-                $this.removeClass('dashicons-info channel-info-wptp').addClass('dashicons-update wptp-loader');
+                $this.removeClass('dashicons-info channel-info-teligro').addClass('dashicons-update teligro-loader');
                 $this.parent().find('.description').remove();
-                var channel_username = $(this).parent().find('.channel-username-wptp').val();
+                var channel_username = $(this).parent().find('.channel-username-teligro').val();
                 if ($.trim(channel_username).length > 0 && !wpDoAjax) {
                     wpDoAjax = true;
                     var data = {
-                        'action': 'channel_members_count_wptp',
+                        'action': 'channel_members_count_teligro',
                         'channel_username': channel_username
                     };
                     $.post(ajaxurl, data, function (response) {
                         $this.parent().append('<div class="description">' + response + '</div>');
-                        $this.removeClass('dashicons-update wptp-loader').addClass('dashicons-info channel-info-wptp');
+                        $this.removeClass('dashicons-update teligro-loader').addClass('dashicons-info channel-info-teligro');
                         wpDoAjax = false;
                     });
                 }
             });
 
-            $('.quick-send-channel-wptp').unbind('click').on('click', function () {
+            $('.quick-send-channel-teligro').unbind('click').on('click', function () {
                 if (wpDoAjax) return;
                 var $this = $(this);
-                $this.removeClass('dashicons-wptp-telegram green-wptp red-wptp').addClass('dashicons dashicons-update wptp-loader');
+                $this.removeClass('dashicons-teligro-telegram green-teligro red-teligro').addClass('dashicons dashicons-update teligro-loader');
                 wpDoAjax = true;
                 var data = {
-                    'action': 'quick_send_channel_wptp',
+                    'action': 'quick_send_channel_teligro',
                     'channel_username': $this.data('channel'),
                     'channel_index': $this.data('index'),
                     'post_id': $this.data('id')
                 };
                 $.post(ajaxurl, data, function (response) {
                     if (response && response.success)
-                        $this.addClass('green-wptp');
+                        $this.addClass('green-teligro');
                     else
-                        $this.addClass('red-wptp');
-                    $this.removeClass('dashicons dashicons-update wptp-loader').addClass('dashicons-wptp-telegram');
+                        $this.addClass('red-teligro');
+                    $this.removeClass('dashicons dashicons-update teligro-loader').addClass('dashicons-teligro-telegram');
                     wpDoAjax = false;
                 });
             });
 
-            $('.multi_select_none_wptp').change(function () {
+            $('.multi_select_none_teligro').change(function () {
                 if ($('option:first', this).is(':selected')) {
                     $('option:not(:first)', this).prop('selected', false);
                 }
@@ -187,12 +187,12 @@ jQuery(function ($) {
             if (accordion === undefined)
                 accordion = true;
 
-            var item = $('.channel-list-wptp .item:last').clone();
-            new_index = item.find('.channel-username-wptp').change_item_index();
+            var item = $('.channel-list-teligro .item:last').clone();
+            new_index = item.find('.channel-username-teligro').change_item_index();
             item.find('.channel_post_type').change_item_index(new_index);
             item.find('.send_to_channel').change_item_index(new_index);
-            item.find('.message-pattern-wptp').change_item_index(new_index);
-            item.find('.message-pattern-wptp').val("{title}\n{excerpt}\n\n{short-link}");
+            item.find('.message-pattern-teligro').change_item_index(new_index);
+            item.find('.message-pattern-teligro').val("{title}\n{excerpt}\n\n{short-link}");
             item.find('.with_featured_image').change_item_index(new_index);
             item.find('.formatting_messages').change_item_index(new_index);
             item.find('.excerpt_length').change_item_index(new_index);
@@ -205,58 +205,58 @@ jQuery(function ($) {
             item.find('.channel_post_type,.disable_web_page_preview').prop('checked', false);
             item.find('select option:eq(0)').prop('selected', true);
             item.find('.emojionearea-editor').html('')
-            item.find('.accordion_wptp').removeClass('active').html(wptp.new_channel);
+            item.find('.accordion_teligro').removeClass('active').html(teligro.new_channel);
             item.find('.panel').hide();
             item.find('textarea').css('display');
             item.find('.emojionearea').remove();
-            item.find('.channel-info-wptp').hide();
-            item.attr('data-index', new_index).insertAfter('.channel-list-wptp .item:last')
+            item.find('.channel-info-teligro').hide();
+            item.attr('data-index', new_index).insertAfter('.channel-list-teligro .item:last')
 
-            item.find(".channel-username-wptp").trigger("input");
+            item.find(".channel-username-teligro").trigger("input");
 
-            if ($('.channel-list-wptp .item').length >= max_channel_wptp)
+            if ($('.channel-list-teligro .item').length >= max_channel_teligro)
                 $(this).prop('disabled', true);
-            wptp_init();
+            teligro_init();
 
             item.find('.emojionearea-editor').html('{title}<div></div>{excerpt}<div><br></div>{short-link}');
 
             if (accordion) {
-                item.find(".toggle").html(wptp.new_channel).trigger("click");
+                item.find(".toggle").html(teligro.new_channel).trigger("click");
             }
         }
 
         // Tab
-        $(".wptp-tab").on('click', function (e) {
+        $(".teligro-tab").on('click', function (e) {
             e.preventDefault();
             var ids = $(this).attr('id');
-            $('.wptp-tab-content').hide();
-            $(".wptp-tab").removeClass('nav-tab-active');
+            $('.teligro-tab-content').hide();
+            $(".teligro-tab").removeClass('nav-tab-active');
             $(this).addClass('nav-tab-active');
             $('#' + ids + '-content').show();
         });
 
-        $('.bot-info-wptp').on('click', function () {
+        $('.bot-info-teligro').on('click', function () {
             var $this = $(this);
             var api_token = $(this).parent().find('.api-token').val();
             if ($.trim(api_token).length > 0 && !wpDoAjax) {
                 wpDoAjax = true;
-                $this.removeClass('dashicons-info bot-info-wptp').addClass('dashicons-update wptp-loader');
+                $this.removeClass('dashicons-info bot-info-teligro').addClass('dashicons-update teligro-loader');
                 $this.parent().find('.description').html(' ');
-                var data = {'action': 'bot_info_wptp'};
+                var data = {'action': 'bot_info_teligro'};
                 $.post(ajaxurl, data, function (response) {
                     $this.parent().append('<div class="description">' + response + '</div>');
-                    $this.removeClass('dashicons-update wptp-loader').addClass('dashicons-info bot-info-wptp');
+                    $this.removeClass('dashicons-update teligro-loader').addClass('dashicons-info bot-info-teligro');
                     wpDoAjax = false;
                 });
             }
         });
 
-        $('.channel-list-wptp .add-channel').on('click', function () {
+        $('.channel-list-teligro .add-channel').on('click', function () {
             add_channel_item(true);
         });
 
         setTimeout(function () {
-            wptp_init();
+            teligro_init();
         }, 1000);
     });
 });

@@ -1,12 +1,12 @@
 <?php
-namespace wptelegrampro;
+namespace teligro;
 use WP_Scripts;
 
 /**
  * Filterable WP Scripts
  * https://wordpress.stackexchange.com/a/108364
  */
-class FilterableScriptsWPTP extends WP_Scripts
+class FilterableScripts extends WP_Scripts
 {
     /**
      * Localizes a script, only if the script has already been added.
@@ -20,7 +20,7 @@ class FilterableScriptsWPTP extends WP_Scripts
      */
     public function localize($handle, $object_name, $l10n)
     {
-        $l10n = apply_filters('wptelegrampro_localize_script', $l10n, $handle, $object_name);
+        $l10n = apply_filters('teligro_localize_script', $l10n, $handle, $object_name);
         return parent::localize($handle, $object_name, $l10n);
     }
 }

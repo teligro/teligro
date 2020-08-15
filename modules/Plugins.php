@@ -1,115 +1,115 @@
 <?php
 
-namespace wptelegrampro;
+namespace teligro;
 
 if ( ! defined( 'ABSPATH' ) )
 	exit;
 
-class PluginsWPTP extends WPTelegramPro {
-	protected $tabID = 'plugins-wptp-tab',
+class Plugins extends Teligro {
+	protected $tabID = 'plugins-teligro-tab',
 		$plugins = array(
 		'contact-form-7'                      => array(
-			'class' => 'ContactForm7WPTP',
+			'class' => 'ContactForm7',
 			'path'  => 'contact-form-7/wp-contact-form-7.php'
 		),
 		'wpforms'                             => array(
-			'class' => 'WPFormsWPTP',
+			'class' => 'WPForms',
 			'path'  => 'wpforms/wpforms.php'
 		),
 		'wpforms-lite'                        => array(
-			'class' => 'WPFormsWPTP',
+			'class' => 'WPForms',
 			'path'  => 'wpforms-lite/wpforms.php'
 		),
 		'formidable'                          => array(
-			'class' => 'FormidableFormsWPTP',
+			'class' => 'FormidableForms',
 			'path'  => 'formidable/formidable.php'
 		),
 		'gravityforms'                        => array(
-			'class' => 'GravityFormsWPTP',
+			'class' => 'GravityForms',
 			'path'  => 'gravityforms/gravityforms.php'
 		),
 		'ninja-forms'                         => array(
-			'class' => 'NinjaFormsWPTP',
+			'class' => 'NinjaForms',
 			'path'  => 'ninja-forms/ninja-forms.php'
 		),
 		'caldera-forms'                       => array(
-			'class' => 'CalderaFormsWPTP',
+			'class' => 'CalderaForms',
 			'path'  => 'caldera-forms/caldera-core.php'
 		),
 		'everest-forms'                       => array(
-			'class' => 'EverestFormsWPTP',
+			'class' => 'EverestForms',
 			'path'  => 'everest-forms/everest-forms.php'
 		),
 		'happyforms'                          => array(
-			'class' => 'HappyFormsWPTP',
+			'class' => 'HappyForms',
 			'path'  => 'happyforms/happyforms.php'
 		),
 		'weforms'                             => array(
-			'class' => 'WeFormsWPTP',
+			'class' => 'WeForms',
 			'path'  => 'weforms/weforms.php'
 		),
 		'visual-form-builder'                 => array(
-			'class' => 'VisualFormBuilderWPTP',
+			'class' => 'VisualFormBuilder',
 			'path'  => 'visual-form-builder/visual-form-builder.php'
 		),
 		'quform'                              => array(
-			'class' => 'QuFormWPTP',
+			'class' => 'QuForm',
 			'path'  => 'quform/quform.php'
 		),
 		'html-forms'                          => array(
-			'class' => 'HTMLFormsWPTP',
+			'class' => 'HTMLForms',
 			'path'  => 'html-forms/html-forms.php'
 		),
 		'forminator'                          => array(
-			'class' => 'ForminatorWPTP',
+			'class' => 'Forminator',
 			'path'  => 'forminator/forminator.php'
 		),
 		'wp-sms'                              => array(
-			'class' => 'WPSMSWPTP',
+			'class' => 'WPSMS',
 			'path'  => 'wp-sms/wp-sms.php'
 		),
 		'mailchimp-for-wp'                    => array(
-			'class' => 'MailchimpForWPWPTP',
+			'class' => 'MailchimpForWP',
 			'path'  => 'mailchimp-for-wp/mailchimp-for-wp.php'
 		),
 		'newsletter'                          => array(
-			'class' => 'NewsletterWPTP',
+			'class' => 'Newsletter',
 			'path'  => 'newsletter/plugin.php'
 		),
 		'wordfence'                           => array(
-			'class' => 'WordfenceWPTP',
+			'class' => 'Wordfence',
 			'path'  => 'wordfence/wordfence.php'
 		),
 		'better-wp-security'                  => array(
-			'class' => 'IThemesSecurityWPTP',
+			'class' => 'IThemesSecurity',
 			'path'  => 'better-wp-security/better-wp-security.php'
 		),
 		'all-in-one-wp-security-and-firewall' => array(
-			'class' => 'AllInOneWPSecurityFirewallWPTP',
+			'class' => 'AllInOneWPSecurityFirewall',
 			'path'  => 'all-in-one-wp-security-and-firewall/wp-security.php'
 		),
 		'wp-cerber'                           => array(
-			'class' => 'WPCerberSecurityWPTP',
+			'class' => 'WPCerberSecurity',
 			'path'  => 'wp-cerber/wp-cerber.php'
 		),
 		'dologin'                             => array(
-			'class' => 'DologinWPTP',
+			'class' => 'Dologin',
 			'path'  => 'dologin/dologin.php'
 		),
 		'backwpup'                            => array(
-			'class' => 'BackWPupWPTP',
+			'class' => 'BackWPup',
 			'path'  => 'backwpup/backwpup.php'
 		),
 		'backupwordpress'                     => array(
-			'class' => 'BackUpWordPressWPTP',
+			'class' => 'BackUpWordPress',
 			'path'  => 'backupwordpress/backupwordpress.php'
 		),
 		'wp-statistics'                       => array(
-			'class' => 'WPStatisticsWPTP',
+			'class' => 'WPStatistics',
 			'path'  => 'wp-statistics/wp-statistics.php'
 		),
 		'wp-user-avatar'                      => array(
-			'class' => 'WPUserAvatarWPTP',
+			'class' => 'WPUserAvatar',
 			'path'  => 'wp-user-avatar/wp-user-avatar.php'
 		),
 	),
@@ -125,8 +125,8 @@ class PluginsWPTP extends WPTelegramPro {
 	function plugins_loaded() {
 		if ( ! $this->check_plugins() )
 			return;
-		add_filter( 'wptelegrampro_settings_tabs', [ $this, 'settings_tab' ], 35 );
-		add_action( 'wptelegrampro_settings_content', [ $this, 'settings_content' ] );
+		add_filter( 'teligro_settings_tabs', [ $this, 'settings_tab' ], 35 );
+		add_action( 'teligro_settings_content', [ $this, 'settings_content' ] );
 	}
 
 	function settings_tab( $tabs ) {
@@ -137,7 +137,7 @@ class PluginsWPTP extends WPTelegramPro {
 
 	function settings_content() {
 		?>
-        <div id="<?php echo $this->tabID ?>-content" class="wptp-tab-content hidden">
+        <div id="<?php echo $this->tabID ?>-content" class="teligro-tab-content hidden">
             <table>
 				<?php if ( ! $this->user ) { ?>
                     <tr>
@@ -147,7 +147,7 @@ class PluginsWPTP extends WPTelegramPro {
                     </tr>
 					<?php
 				}
-				do_action( 'wptelegrampro_plugins_settings_content' ); ?>
+				do_action( 'teligro_plugins_settings_content' ); ?>
             </table>
         </div>
 		<?php
@@ -160,15 +160,15 @@ class PluginsWPTP extends WPTelegramPro {
 	 */
 	function check_plugins() {
 		foreach ( $this->plugins as $plugin => $info ) {
-			if ( file_exists( WPTELEGRAMPRO_PLUGINS_DIR . $info['class'] . '.php' ) && $this->check_plugin_active( $info['path'] ) ) {
+			if ( file_exists( TELIGRO_PLUGINS_DIR . $info['class'] . '.php' ) && $this->check_plugin_active( $info['path'] ) ) {
 				if ( isset( $info['preneed'] ) ) {
 					foreach ( $info['preneed'] as $file ) {
-						if ( file_exists( WPTELEGRAMPRO_PLUGINS_DIR . $file ) )
-							require_once WPTELEGRAMPRO_PLUGINS_DIR . $file;
+						if ( file_exists( TELIGRO_PLUGINS_DIR . $file ) )
+							require_once TELIGRO_PLUGINS_DIR . $file;
 					}
 				}
 				$this->currentActivePlugins[] = $plugin;
-				require_once WPTELEGRAMPRO_PLUGINS_DIR . $info['class'] . '.php';
+				require_once TELIGRO_PLUGINS_DIR . $info['class'] . '.php';
 			}
 		}
 
@@ -177,14 +177,14 @@ class PluginsWPTP extends WPTelegramPro {
 
 	/**
 	 * Returns an instance of class
-	 * @return PluginsWPTP
+	 * @return Plugins
 	 */
 	static function getInstance() {
 		if ( self::$instance == null )
-			self::$instance = new PluginsWPTP();
+			self::$instance = new Plugins();
 
 		return self::$instance;
 	}
 }
 
-$PluginsWPTP = PluginsWPTP::getInstance();
+Plugins::getInstance();

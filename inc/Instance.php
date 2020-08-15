@@ -4,7 +4,7 @@
  *
  * @since      	1.0
  */
-namespace wptelegrampro;
+namespace teligro;
 
 defined( 'ABSPATH' ) || exit;
 

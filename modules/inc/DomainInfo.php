@@ -1,23 +1,23 @@
 <?php
 
-namespace wptelegrampro;
+namespace teligro;
 
 /**
- * WPTelegramPro Domain Info
+ * Teligro Domain Info
  *
- * @link       https://wordpress.org/plugins/wp-telegram-pro
+ * @link       https://wordpress.org/plugins/teligro
  * @since      1.0.0
  *
- * @package    WPTelegramPro
- * @subpackage WPTelegramPro/modules/inc
+ * @package    Teligro
+ * @subpackage Teligro/modules/inc
  */
-class DomainInfoWPTP
+class DomainInfo
 {
     protected $host;
 
     public function __construct($url)
     {
-        $this->host = HelpersWPTP::getURLHost($url);
+        $this->host = Helpers::getURLHost($url);
         return $this;
     }
 

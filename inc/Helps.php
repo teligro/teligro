@@ -1,7 +1,7 @@
 <?php
-namespace wptelegrampro;
+namespace teligro;
 
-class HelpsWPTP extends WPTelegramPro
+class Helps extends Teligro
 {
     public static $instance = null;
     protected $page_key, $page_title;
@@ -22,10 +22,10 @@ class HelpsWPTP extends WPTelegramPro
     function pageContent()
     {
         ?>
-        <div class="wrap wptp-wrap">
+        <div class="wrap teligro-wrap">
             <h1 class="wp-heading-inline"><?php echo $this->plugin_name . $this->page_title_divider . $this->page_title ?></h1>
-            <div class="accordion-wptp">
-                <?php do_action('wptelegrampro_helps_content'); ?>
+            <div class="accordion-teligro">
+                <?php do_action('teligro_helps_content'); ?>
             </div>
         </div>
         <?php
@@ -33,14 +33,14 @@ class HelpsWPTP extends WPTelegramPro
 
     /**
      * Returns an instance of class
-     * @return  HelpsWPTP
+     * @return  Helps
      */
     static function getInstance()
     {
         if (self::$instance == null)
-            self::$instance = new HelpsWPTP();
+            self::$instance = new Helps();
         return self::$instance;
     }
 }
 
-$HelpsWPTP = HelpsWPTP::getInstance();
+Helps::getInstance();

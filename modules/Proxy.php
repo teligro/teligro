@@ -1,24 +1,24 @@
 <?php
 
-namespace wptelegrampro;
+namespace teligro;
 
-class ProxyWPTP extends WPTelegramPro {
+class Proxy extends Teligro {
 	public static $instance = null;
 	private static $proxy;
-	protected $tabID = 'proxy-wptp-tab';
+	protected $tabID = 'proxy-teligro-tab';
 
 	public function __construct() {
 		parent::__construct();
 
-		add_filter( 'wptelegrampro_settings_tabs', [ $this, 'settings_tab' ], 35 );
-		add_action( 'wptelegrampro_settings_content', [ $this, 'settings_content' ] );
-		add_action( 'wptelegrampro_helps_content', [ $this, 'helps_google_proxy' ] );
-		add_action( 'wptelegrampro_helps_content', [ $this, 'php_tunnel_proxy' ] );
-		add_filter( 'wptelegrampro_image_send_mode', [ $this, 'image_send_mode' ], 35 );
-		add_filter( 'wptelegrampro_proxy_status', [ $this, 'proxy_status' ], 35 );
+		add_filter( 'teligro_settings_tabs', [ $this, 'settings_tab' ], 35 );
+		add_action( 'teligro_settings_content', [ $this, 'settings_content' ] );
+		add_action( 'teligro_helps_content', [ $this, 'helps_google_proxy' ] );
+		add_action( 'teligro_helps_content', [ $this, 'php_tunnel_proxy' ] );
+		add_filter( 'teligro_image_send_mode', [ $this, 'image_send_mode' ], 35 );
+		add_filter( 'teligro_proxy_status', [ $this, 'proxy_status' ], 35 );
 
-		add_action( 'wptelegrampro_after_settings_updated', [ $this, 'checkProxySettingUpdated' ], 9, 2 );
-		add_filter( 'wptelegrampro_set_webhook', [ $this, 'tunnelUpdateWebHook' ] );
+		add_action( 'teligro_after_settings_updated', [ $this, 'checkProxySettingUpdated' ], 9, 2 );
+		add_filter( 'teligro_set_webhook', [ $this, 'tunnelUpdateWebHook' ] );
 
 		$this->setup_proxy();
 	}
@@ -47,15 +47,15 @@ class ProxyWPTP extends WPTelegramPro {
 		if ( $proxy_status === 'google_script' ) {
 			$google_script_url = $this->get_option( 'google_script_url' );
 			if ( ! empty( $google_script_url ) ) {
-				add_filter( 'wptelegrampro_api_remote_post_args', [ $this, 'script_request_args' ], 10, 3 );
-				add_filter( 'wptelegrampro_api_request_url', [ $this, 'google_script_request_url' ] );
+				add_filter( 'teligro_api_remote_post_args', [ $this, 'script_request_args' ], 10, 3 );
+				add_filter( 'teligro_api_request_url', [ $this, 'google_script_request_url' ] );
 			}
 
 		} elseif ( $proxy_status === 'php_tunnel' ) {
 			$php_tunnel_script_url = $this->get_option( 'php_tunnel_script_url' );
 			if ( ! empty( $php_tunnel_script_url ) ) {
-				add_filter( 'wptelegrampro_api_remote_post_args', [ $this, 'script_request_args' ], 10, 3 );
-				add_filter( 'wptelegrampro_api_request_url', [ $this, 'phpTunnelRequestURL' ] );
+				add_filter( 'teligro_api_remote_post_args', [ $this, 'script_request_args' ], 10, 3 );
+				add_filter( 'teligro_api_request_url', [ $this, 'phpTunnelRequestURL' ] );
 			}
 
 		} elseif ( $proxy_status === 'php_proxy' )
@@ -89,21 +89,21 @@ class ProxyWPTP extends WPTelegramPro {
 
 		if ( $last_options['proxy_status'] != $new_options['proxy_status'] && ( $last_options['proxy_status'] === 'php_tunnel' || $new_options['proxy_status'] === 'php_tunnel' ) ) {
 			if ( $new_options['proxy_status'] === 'php_tunnel' ) {
-				add_filter( 'wptelegrampro_api_remote_post_args', [ $this, 'script_request_args' ], 10, 3 );
-				add_filter( 'wptelegrampro_api_request_url', [ $this, 'phpTunnelRequestURL' ] );
+				add_filter( 'teligro_api_remote_post_args', [ $this, 'script_request_args' ], 10, 3 );
+				add_filter( 'teligro_api_request_url', [ $this, 'phpTunnelRequestURL' ] );
 
 			} else {
-				remove_action( 'wptelegrampro_api_remote_post_args', [ $this, 'script_request_args' ] );
-				remove_action( 'wptelegrampro_api_request_url', [ $this, 'phpTunnelRequestURL' ] );
-				remove_action( 'wptelegrampro_set_webhook', [ $this, 'tunnelUpdateWebHook' ] );
-				remove_action( 'wptelegrampro_proxy_status', [ $this, 'proxy_status' ] );
+				remove_action( 'teligro_api_remote_post_args', [ $this, 'script_request_args' ] );
+				remove_action( 'teligro_api_request_url', [ $this, 'phpTunnelRequestURL' ] );
+				remove_action( 'teligro_set_webhook', [ $this, 'tunnelUpdateWebHook' ] );
+				remove_action( 'teligro_proxy_status', [ $this, 'proxy_status' ] );
 			}
 
-			$telegram = new TelegramWPTP( $new_options['api_token'] );
+			$telegram = new Telegram( $new_options['api_token'] );
 			$webHook  = $this->webHookURL( false ); 
 
 			if ( $new_options['proxy_status'] === 'php_tunnel' && ! empty( $new_options['php_tunnel_script_url'] ) ) {
-				$webHook = apply_filters( 'wptelegrampro_set_webhook', $webHook );
+				$webHook = apply_filters( 'teligro_set_webhook', $webHook );
 			}
 			$telegram->setWebhook( $webHook['url'] );
 		}
@@ -159,7 +159,7 @@ class ProxyWPTP extends WPTelegramPro {
 	 * @return array
 	 */
 	private static function get_proxy() {
-		return (array) apply_filters( 'wptelegrampro_api_curl_proxy', self::$proxy );
+		return (array) apply_filters( 'teligro_api_curl_proxy', self::$proxy );
 	}
 
 	/**
@@ -178,7 +178,7 @@ class ProxyWPTP extends WPTelegramPro {
 	public function modify_http_api_curl( &$handle, $r, $url ) {
 		if ( $this->check_remote_post( $r, $url ) ) {
 			foreach ( self::get_proxy() as $option => $value ) {
-				${'proxy_' . $option} = apply_filters( "wptelegrampro_api_curl_proxy_{$option}", $value );
+				${'proxy_' . $option} = apply_filters( "teligro_api_curl_proxy_{$option}", $value );
 			}
 
 			if ( ! empty( $proxy_host ) && ! empty( $proxy_port ) ) {
@@ -228,7 +228,7 @@ class ProxyWPTP extends WPTelegramPro {
 		$proxy_status  = $this->get_option( 'proxy_status' );
 		$proxy_type    = $this->get_option( 'proxy_type' );
 		?>
-        <div id="<?php echo $this->tabID ?>-content" class="wptp-tab-content hidden">
+        <div id="<?php echo $this->tabID ?>-content" class="teligro-tab-content hidden">
             <table>
                 <tr>
                     <th><?php _e( 'DISCLAIMER', $this->plugin_key ) ?></th>
@@ -264,7 +264,7 @@ class ProxyWPTP extends WPTelegramPro {
             </table>
 
             <table id="proxy_php_tunnel"
-                   class="proxy-status-wptp" <?php echo $proxy_status != 'php_tunnel' ? 'style="display: none"' : '' ?>>
+                   class="proxy-status-teligro" <?php echo $proxy_status != 'php_tunnel' ? 'style="display: none"' : '' ?>>
                 <tr>
                     <td>
                         <label for="php_tunnel_script_url"><?php _e( 'Tunnel Script URL', $this->plugin_key ) ?></label>
@@ -282,7 +282,7 @@ class ProxyWPTP extends WPTelegramPro {
             </table>
 
             <table id="proxy_google_script"
-                   class="proxy-status-wptp" <?php echo $proxy_status != 'google_script' ? 'style="display: none"' : '' ?>>
+                   class="proxy-status-teligro" <?php echo $proxy_status != 'google_script' ? 'style="display: none"' : '' ?>>
                 <tr>
                     <td>
                         <label for="google_script_url"><?php _e( 'Google Script URL', $this->plugin_key ) ?></label>
@@ -300,7 +300,7 @@ class ProxyWPTP extends WPTelegramPro {
             </table>
 
             <table id="proxy_php_proxy"
-                   class="proxy-status-wptp" <?php echo $proxy_status != 'php_proxy' ? 'style="display: none"' : '' ?>>
+                   class="proxy-status-teligro" <?php echo $proxy_status != 'php_proxy' ? 'style="display: none"' : '' ?>>
                 <tr>
                     <td>
                         <label for="proxy_host"><?php _e( 'Proxy Host', $this->plugin_key ) ?></label>
@@ -396,7 +396,7 @@ class ProxyWPTP extends WPTelegramPro {
 					<?php _e( 'If your website host location (See the Debugs page) filtered/blocked the Telegram requests, You can use a Proxy Tunnel for receive/request to Telegram.',
 						$this->plugin_key ); ?>
                     <br>
-                    <a href="https://github.com/wp-telegram-pro/wp-telegram-pro-php-tunnel"
+                    <a href="https://github.com/teligro/teligro-php-tunnel"
                        target="_blank"><?php _e( 'Proxy tunnel usage guide', $this->plugin_key ); ?></a>
                 </div>
             </div>
@@ -492,14 +492,14 @@ function handleRequest(e) {
 
 	/**
 	 * Returns an instance of class
-	 * @return  ProxyWPTP
+	 * @return  Proxy
 	 */
 	static function getInstance() {
 		if ( self::$instance == null )
-			self::$instance = new ProxyWPTP();
+			self::$instance = new Proxy();
 
 		return self::$instance;
 	}
 }
 
-$ProxyWPTP = ProxyWPTP::getInstance();
+Proxy::getInstance();

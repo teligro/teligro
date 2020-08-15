@@ -1,55 +1,55 @@
 <?php
 
-namespace wptelegrampro;
+namespace teligro;
 if (!defined('ABSPATH')) exit;
 
-class ChannelWPTP extends WPTelegramPro
+class Channel extends Teligro
 {
     public static $instance = null;
-    protected $tabID = 'channel-wptp-tab';
+    protected $tabID = 'channel-teligro-tab';
     public $excerpt_length = 100, $max_channel = 10;
     protected $post_types;
 
     public function __construct()
     {
         parent::__construct();
-        add_action('wp_ajax_channel_members_count_wptp', [$this, 'channel_members_count']);
-        add_action('wp_ajax_quick_send_channel_wptp', [$this, 'quick_send_channel']);
-        add_filter('wptelegrampro_settings_tabs', [$this, 'settings_tab'], 20);
-        add_action('wptelegrampro_settings_content', [$this, 'settings_content']);
-        add_action('before_settings_updated_wptp', [$this, 'before_settings_updated'], 2);
-        add_Shortcode('channel_members_wptp', [$this, 'channel_members_shortcode']);
-        add_Shortcode('if_statement_wptp', [$this, 'if_statement_shortcode']);
-        add_filter('wptelegrampro_channel_text', [$this, 'replace_channel_text'], 999999, 2);
-        add_action('wptelegrampro_helps_content', [$this, 'helps_channel']);
+        add_action('wp_ajax_channel_members_count_teligro', [$this, 'channel_members_count']);
+        add_action('wp_ajax_quick_send_channel_teligro', [$this, 'quick_send_channel']);
+        add_filter('teligro_settings_tabs', [$this, 'settings_tab'], 20);
+        add_action('teligro_settings_content', [$this, 'settings_content']);
+        add_action('before_settings_updated_teligro', [$this, 'before_settings_updated'], 2);
+        add_Shortcode('channel_members_teligro', [$this, 'channel_members_shortcode']);
+        add_Shortcode('if_statement_teligro', [$this, 'if_statement_shortcode']);
+        add_filter('teligro_channel_text', [$this, 'replace_channel_text'], 999999, 2);
+        add_action('teligro_helps_content', [$this, 'helps_channel']);
         add_action('init', [$this, 'channel_init']);
 
         if ($this->get_option('send_to_channels') == 1) {
             add_action('init', [$this, 'schedule']);
-            add_action('auto_channels_wptp', [$this, 'auto_update']);
+            add_action('auto_channels_teligro', [$this, 'auto_update']);
             add_action('add_meta_boxes', [$this, 'register_meta_boxes'], 99999);
             add_action('save_post', [$this, 'meta_save'], 9999999995, 2);
         } else
-            wp_clear_scheduled_hook('auto_channels_wptp');
+            wp_clear_scheduled_hook('auto_channels_teligro');
     }
 
     function content_posts_column($column, $post_id)
     {
-        if ('telegram-wptp' === $column) {
+        if ('telegram-teligro' === $column) {
             $options = $this->options;
             $post_type = isset($_GET['post_type']) ? $_GET['post_type'] : 'post';
             foreach ($options['channel_username'] as $k => $v) {
                 $channel_post_type = isset($options['channel_post_type'][$k]) && count($options['channel_post_type'][$k]) ? $options['channel_post_type'][$k] : [];
                 $post_types = array_keys($channel_post_type);
                 if (in_array($post_type, $post_types))
-                    echo '<span class="dashicons-wptp-telegram quick-send-channel-wptp" title="' . __('Send to Channel', $this->plugin_key) . ': @' . $v . '" data-channel="' . $v . '" data-id="' . $post_id . '" data-index="' . $k . '"></span>';
+                    echo '<span class="dashicons-teligro-telegram quick-send-channel-teligro" title="' . __('Send to Channel', $this->plugin_key) . ': @' . $v . '" data-channel="' . $v . '" data-id="' . $post_id . '" data-index="' . $k . '"></span>';
             }
         }
     }
 
     function filter_posts_columns($columns)
     {
-        $columns['telegram-wptp'] = __('Telegram', $this->plugin_key);
+        $columns['telegram-teligro'] = __('Telegram', $this->plugin_key);
         return $columns;
     }
 
@@ -140,7 +140,7 @@ class ChannelWPTP extends WPTelegramPro
                         $terms = get_the_terms($post_id, $_field[1]);
                         $names = (is_wp_error($terms) || empty($terms)) ? array() : wp_list_pluck($terms, 'name');
                         if (!empty($names)) {
-                            $delimiter = apply_filters('wptelegrampro_taxonomy_terms_delimiter', ' | ');
+                            $delimiter = apply_filters('teligro_taxonomy_terms_delimiter', ' | ');
                             $value = implode($delimiter, $names);
                         }
                     }
@@ -152,7 +152,7 @@ class ChannelWPTP extends WPTelegramPro
         /**
          * Check if statement
          */
-        $template = preg_replace('/{if=\'(.*?)\'}(.*?){\/if}/', '[if_statement_wptp field="$1" post_id="' . $post_id . '"]$2[/if_statement_wptp]', $template);
+        $template = preg_replace('/{if=\'(.*?)\'}(.*?){\/if}/', '[if_statement_teligro field="$1" post_id="' . $post_id . '"]$2[/if_statement_teligro]', $template);
 
         $template = do_shortcode($template);
 
@@ -184,10 +184,10 @@ class ChannelWPTP extends WPTelegramPro
                     array(
                         'compare' => '!=',
                         'value' => '',
-                        'key' => '_send_to_channel_' . $post_type . '_wptp',
+                        'key' => '_send_to_channel_' . $post_type . '_teligro',
                     ),
                     array(
-                        'key' => '_retry_posted_' . $post_type . '_wptp',
+                        'key' => '_retry_posted_' . $post_type . '_teligro',
                         'compare' => 'NOT EXISTS',
                     )
                 )
@@ -211,10 +211,10 @@ class ChannelWPTP extends WPTelegramPro
                             array(
                                 'compare' => '=',
                                 'value' => '1',
-                                'key' => '_send_to_channel_' . $options['channel_username'][$k] . '_wptp',
+                                'key' => '_send_to_channel_' . $options['channel_username'][$k] . '_teligro',
                             ),
                             array(
-                                'key' => '_retry_posted_' . $options['channel_username'][$k] . '_wptp',
+                                'key' => '_retry_posted_' . $options['channel_username'][$k] . '_teligro',
                                 'compare' => 'NOT EXISTS',
                             )
                         )
@@ -240,29 +240,29 @@ class ChannelWPTP extends WPTelegramPro
 
     function send_to_channel($post_id, $channel, $index = 0)
     {
-        $image_send_mode = apply_filters('wptelegrampro_image_send_mode', 'image_path');
+        $image_send_mode = apply_filters('teligro_image_send_mode', 'image_path');
         $keyboards = null;
+        $inlineKeyboards = null;
         $options = $this->options;
         $result = false;
 
         if ($options['channel_username'][$index] == $channel) {
             $post = $this->query(array('p' => $post_id, 'post_type' => get_post_type($post_id)));
 
-            $text = get_post_meta($post_id, '_channel_message_pattern_' . $options['channel_username'][$index] . '_wptp', true);
+            $text = get_post_meta($post_id, '_channel_message_pattern_' . $options['channel_username'][$index] . '_teligro', true);
             if (empty($text))
                 $text = $options['channel_message_pattern'][$index];
 
             $text = stripslashes($text);
 
             if (isset($options['channel_inline_button_title'][$index]) && !empty($options['channel_inline_button_title'][$index])) {
-                $keyboard = array(array(
-                    array('text' => $options['channel_inline_button_title'][$index], 'url' => $post['short-link'])
+	            $inlineKeyboards = array(array(
+	                array('text' => $options['channel_inline_button_title'][$index], 'url' => $post['short-link'])
                 ));
-                $keyboards = $this->telegram->keyboard($keyboard, 'inline_keyboard');
             }
 
             if ($post['image'] !== null) {
-                $featured_image = get_post_meta($post_id, '_featured_image_' . $options['channel_username'][$index] . '_wptp', true);
+                $featured_image = get_post_meta($post_id, '_featured_image_' . $options['channel_username'][$index] . '_teligro', true);
                 if (empty($featured_image))
                     $featured_image = isset($options['channel_with_featured_image'][$index]);
             } else {
@@ -293,7 +293,8 @@ class ChannelWPTP extends WPTelegramPro
                 else
                     $post['categories'] = '';
 
-            $this->patterns_tags = apply_filters('wptelegrampro_patterns_tags', $this->patterns_tags);
+            $this->patterns_tags = apply_filters('teligro_patterns_tags', $this->patterns_tags);
+
             foreach ($this->patterns_tags as $group => $group_item) {
                 if (isset($group_item['plugin']) && !$this->check_plugin_active($group_item['plugin']))
                     continue;
@@ -308,7 +309,11 @@ class ChannelWPTP extends WPTelegramPro
                 }
             }
 
-            $text = apply_filters('wptelegrampro_channel_text', $text, $post_id);
+            $text       = apply_filters('teligro_channel_text', $text, $post_id);
+	        $inlineKeyboards  = apply_filters('teligro_channel_inline_keyboards', $inlineKeyboards, $post_id);
+
+	        if(is_array($inlineKeyboards))
+		        $keyboards = $this->telegram->keyboard($inlineKeyboards, 'inline_keyboard');
 
             $this->telegram->disable_web_page_preview($disable_web_page_preview);
             if ($featured_image && $post[$image_send_mode] !== null)
@@ -318,9 +323,9 @@ class ChannelWPTP extends WPTelegramPro
 
             $result = $this->telegram->get_last_result();
             if (isset($result['ok']) && $result['ok']) {
-                update_post_meta($post_id, '_posted_status_' . $channel . '_wptp', 1);
-                update_post_meta($post_id, '_retry_posted_' . $channel . '_wptp', 1);
-                update_post_meta($post_id, '_send_to_channel_' . $channel . '_wptp', 2);
+                update_post_meta($post_id, '_posted_status_' . $channel . '_teligro', 1);
+                update_post_meta($post_id, '_retry_posted_' . $channel . '_teligro', 1);
+                update_post_meta($post_id, '_send_to_channel_' . $channel . '_teligro', 2);
             }
         }
 
@@ -329,8 +334,8 @@ class ChannelWPTP extends WPTelegramPro
 
     function schedule()
     {
-        if (isset($this->options['send_to_channels']) && !wp_next_scheduled('auto_channels_wptp'))
-            wp_schedule_event(current_time('U'), 'every_' . (intval($this->options['channels_cron_interval']) != 0 ? $this->options['channels_cron_interval'] : 1) . '_minutes', 'auto_channels_wptp');
+        if (isset($this->options['send_to_channels']) && !wp_next_scheduled('auto_channels_teligro'))
+            wp_schedule_event(current_time('U'), 'every_' . (intval($this->options['channels_cron_interval']) != 0 ? $this->options['channels_cron_interval'] : 1) . '_minutes', 'auto_channels_teligro');
     }
 
     function meta_save($post_id, $post)
@@ -338,9 +343,9 @@ class ChannelWPTP extends WPTelegramPro
         $display_metabox = $this->check_metabox_display();
 
         if ($display_metabox) {
-            if (!isset($_POST['wptp-nonce']))
+            if (!isset($_POST['teligro-nonce']))
                 return $post_id;
-            if (!isset($_POST["wptp-nonce"]) || !wp_verify_nonce($_POST["wptp-nonce"], basename(__FILE__)))
+            if (!isset($_POST["teligro-nonce"]) || !wp_verify_nonce($_POST["teligro-nonce"], basename(__FILE__)))
                 return $post_id;
         }
 
@@ -368,14 +373,14 @@ class ChannelWPTP extends WPTelegramPro
                 continue;
 
             if ($display_metabox) {
-                $posted_status = get_post_meta($post_id, '_retry_posted_' . $options['channel_username'][$k] . '_wptp', true);
+                $posted_status = get_post_meta($post_id, '_retry_posted_' . $options['channel_username'][$k] . '_teligro', true);
                 if ($posted_status == 1 && $_POST['send_to_channel'][$options['channel_username'][$k]] == 1)
-                    delete_post_meta($post_id, '_retry_posted_' . $options['channel_username'][$k] . '_wptp');
+                    delete_post_meta($post_id, '_retry_posted_' . $options['channel_username'][$k] . '_teligro');
 
                 if (!empty($_POST['channel_message_pattern'][$options['channel_username'][$k]]) && stripslashes($options['channel_message_pattern'][$k]) != $_POST['channel_message_pattern'][$options['channel_username'][$k]])
-                    update_post_meta($post_id, '_channel_message_pattern_' . $options['channel_username'][$k] . '_wptp', $_POST['channel_message_pattern'][$options['channel_username'][$k]]);
+                    update_post_meta($post_id, '_channel_message_pattern_' . $options['channel_username'][$k] . '_teligro', $_POST['channel_message_pattern'][$options['channel_username'][$k]]);
                 elseif (empty($_POST['channel_message_pattern'][$options['channel_username'][$k]]))
-                    delete_post_meta($post_id, '_channel_message_pattern_' . $options['channel_username'][$k] . '_wptp');
+                    delete_post_meta($post_id, '_channel_message_pattern_' . $options['channel_username'][$k] . '_teligro');
 
                 $send_to_channel = $_POST['send_to_channel'][$options['channel_username'][$k]];
                 $featured_image = $_POST['channel_with_featured_image'][$options['channel_username'][$k]];
@@ -384,8 +389,8 @@ class ChannelWPTP extends WPTelegramPro
                 $featured_image = isset($options['channel_with_featured_image'][$k]) ? 1 : 2;
             }
 
-            update_post_meta($post_id, '_send_to_channel_' . $options['channel_username'][$k] . '_wptp', $send_to_channel);
-            update_post_meta($post_id, '_featured_image_' . $options['channel_username'][$k] . '_wptp', $featured_image);
+            update_post_meta($post_id, '_send_to_channel_' . $options['channel_username'][$k] . '_teligro', $send_to_channel);
+            update_post_meta($post_id, '_featured_image_' . $options['channel_username'][$k] . '_teligro', $featured_image);
         }
         return $post_id;
     }
@@ -402,7 +407,7 @@ class ChannelWPTP extends WPTelegramPro
                     $post_types = array_merge($post_types, array_keys($options['channel_post_type'][$k]));
             }
             if (in_array($post_type, $post_types))
-                add_meta_box('WPTPMetaBox', $this->plugin_name, array($this, 'post_display'), $post_type);
+                add_meta_box('TeligroMetaBox', $this->plugin_name, array($this, 'post_display'), $post_type);
         }
     }
 
@@ -412,9 +417,9 @@ class ChannelWPTP extends WPTelegramPro
         if (!isset($options['channel_username']) || !is_array($options['channel_username']) || count($options['channel_username']) == 0)
             return;
         $post_id = get_the_ID();
-        wp_nonce_field(basename(__FILE__), "wptp-nonce");
+        wp_nonce_field(basename(__FILE__), "teligro-nonce");
         ?>
-        <div class="wrap wptp-metabox channel-list-wptp accordion-wptp">
+        <div class="wrap teligro-metabox channel-list-teligro accordion-teligro">
             <?php
             $current_channel = array();
             foreach ($options['channel_username'] as $k => $v) {
@@ -425,21 +430,21 @@ class ChannelWPTP extends WPTelegramPro
                 if (empty($v) || in_array($options['channel_username'][$k], $current_channel) || !isset($options['channel_post_type'][$k]) || isset($options['channel_post_type'][$k]) && is_array($options['channel_post_type'][$k]) && !in_array(get_post_type($post_id), $post_types))
                     continue;
                 $current_channel[] = $options['channel_username'][$k];
-                $send_to_channel = get_post_meta($post_id, '_send_to_channel_' . $options['channel_username'][$k] . '_wptp', true);
+                $send_to_channel = get_post_meta($post_id, '_send_to_channel_' . $options['channel_username'][$k] . '_teligro', true);
 
                 if (empty($send_to_channel))
                     $send_to_channel = isset($options['send_to_channel'][$k]) ? 1 : 2;
 
-                $channel_message_pattern = get_post_meta($post_id, '_channel_message_pattern_' . $options['channel_username'][$k] . '_wptp', true);
+                $channel_message_pattern = get_post_meta($post_id, '_channel_message_pattern_' . $options['channel_username'][$k] . '_teligro', true);
                 if (empty($channel_message_pattern))
                     $channel_message_pattern = $options['channel_message_pattern'][$k];
                 $channel_message_pattern = stripslashes($channel_message_pattern);
 
-                $featured_image = get_post_meta($post_id, '_featured_image_' . $options['channel_username'][$k] . '_wptp', true);
+                $featured_image = get_post_meta($post_id, '_featured_image_' . $options['channel_username'][$k] . '_teligro', true);
                 if (empty($featured_image))
                     $featured_image = isset($options['channel_with_featured_image'][$k]) ? 1 : 2;
 
-                $posted_status = get_post_meta($post_id, '_posted_status_' . $options['channel_username'][$k] . '_wptp', true);
+                $posted_status = get_post_meta($post_id, '_posted_status_' . $options['channel_username'][$k] . '_teligro', true);
                 $posted = '';
 
                 if ($send_to_channel == 1)
@@ -484,7 +489,7 @@ class ChannelWPTP extends WPTelegramPro
                                     <br>
                                     <textarea
                                             name="channel_message_pattern[<?php echo $options['channel_username'][$k] ?>]"
-                                            cols="50" class="message-pattern-wptp emoji"
+                                            cols="50" class="message-pattern-teligro emoji"
                                             rows="4"><?php echo $channel_message_pattern ?></textarea>
                                 </td>
                             </tr>
@@ -525,7 +530,7 @@ class ChannelWPTP extends WPTelegramPro
         if (!$atts['channel'] || empty($atts['channel']))
             return __("[Set 'channel' attribute]", $this->plugin_key);
 
-        $transient_key = 'channel_members_' . $atts['channel'] . '_wptp';
+        $transient_key = 'channel_members_' . $atts['channel'] . '_teligro';
 
         if (WP_DEBUG || false === ($count = get_transient($transient_key))) {
             $channel = $this->telegram->get_members_count('@' . $atts['channel']);
@@ -559,7 +564,7 @@ class ChannelWPTP extends WPTelegramPro
     function before_settings_updated()
     {
         if (!isset($_POST['send_to_channels']) || $_POST['channels_cron_interval'] != $this->options['channels_cron_interval']) {
-            wp_clear_scheduled_hook('auto_channels_wptp');
+            wp_clear_scheduled_hook('auto_channels_teligro');
         }
     }
 
@@ -574,7 +579,7 @@ class ChannelWPTP extends WPTelegramPro
         $this->options = get_option($this->plugin_key);
 
         ?>
-        <div id="<?php echo $this->tabID ?>-content" class="wptp-tab-content hidden">
+        <div id="<?php echo $this->tabID ?>-content" class="teligro-tab-content hidden">
             <table>
                 <tr>
                     <td>
@@ -640,7 +645,7 @@ class ChannelWPTP extends WPTelegramPro
                 </tr>
             </table>
             <br>
-            <div class="channel-list-wptp accordion-wptp">
+            <div class="channel-list-teligro accordion-teligro">
                 <?php
                 $options = $this->options;
                 $c = 0;
@@ -704,9 +709,9 @@ class ChannelWPTP extends WPTelegramPro
                         <td>
                             @<input type="text" name="channel_username[<?php echo $item['index'] ?>]"
                                     value="<?php echo isset($item['channel_username']) ? $item['channel_username'] : '' ?>"
-                                    class="channel-username-wptp ltr">
-                            <span class="dashicons dashicons-info channel-info-wptp" <?php echo !isset($item['channel_username']) || empty($item['channel_username']) ? 'style="display: none"' : '' ?>></span>
-                            <span class="dashicons dashicons-trash remove-channel-wptp"></span>
+                                    class="channel-username-teligro ltr">
+                            <span class="dashicons dashicons-info channel-info-teligro" <?php echo !isset($item['channel_username']) || empty($item['channel_username']) ? 'style="display: none"' : '' ?>></span>
+                            <span class="dashicons dashicons-trash remove-channel-teligro"></span>
                         </td>
                     </tr>
                     <tr>
@@ -738,7 +743,7 @@ class ChannelWPTP extends WPTelegramPro
                             <?php $this->select_tags() ?>
                             <br>
                             <textarea name="channel_message_pattern[<?php echo $item['index'] ?>]" cols="50"
-                                      class="message-pattern-wptp emoji"
+                                      class="message-pattern-teligro emoji"
                                       rows="4"><?php echo isset($item['message_pattern']) ? stripslashes($item['message_pattern']) : '' ?></textarea>
                         </td>
                     </tr>
@@ -829,8 +834,8 @@ class ChannelWPTP extends WPTelegramPro
 
     private function select_tags()
     {
-        $this->patterns_tags = apply_filters('wptelegrampro_patterns_tags', $this->patterns_tags);
-        $select = '<select class="patterns-select-wptp">';
+        $this->patterns_tags = apply_filters('teligro_patterns_tags', $this->patterns_tags);
+        $select = '<select class="patterns-select-teligro">';
         $select .= '<option style="display:none;" selected> ' . __('- Select a Tag -', $this->plugin_key) . ' </option>';
         foreach ($this->patterns_tags as $group => $group_item) {
             if (isset($group_item['plugin']) && !$this->check_plugin_active($group_item['plugin']))
@@ -863,14 +868,14 @@ class ChannelWPTP extends WPTelegramPro
 
     /**
      * Returns an instance of class
-     * @return  ChannelWPTP
+     * @return  Channel
      */
     static function getInstance()
     {
         if (self::$instance == null)
-            self::$instance = new ChannelWPTP();
+            self::$instance = new Channel();
         return self::$instance;
     }
 }
 
-$ChannelWPTP = ChannelWPTP::getInstance();
+Channel::getInstance();

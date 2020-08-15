@@ -5,7 +5,7 @@
  * @since 1.0
  */
 
-namespace wptelegrampro;
+namespace teligro;
 
 use WP_Error;
 use WP_User;
@@ -15,14 +15,14 @@ defined('ABSPATH') || exit;
 class Users extends Instance
 {
     protected static $_instance;
-    protected $WPTelegramPro;
+    protected $Teligro;
     private $_login_dry_run = false;
 
     public function init()
     {
-        $this->WPTelegramPro = WPTelegramPro::getInstance();
+        $this->Teligro = Teligro::getInstance();
 
-        if ($this->WPTelegramPro->get_option('telegram_bot_two_factor_auth', false)) {
+        if ($this->Teligro->get_option('telegram_bot_two_factor_auth', false)) {
             add_action('login_message', [$this, 'login_message']);
             add_action('login_enqueue_scripts', [$this, 'login_enqueue_scripts']);
             add_action('login_form', [$this, 'login_form']);
@@ -45,7 +45,7 @@ class Users extends Instance
      */
     public function login_authenticate($user, $username, $password)
     {
-        $WPTelegramPro = $this->WPTelegramPro;
+        $Teligro = $this->Teligro;
 
         if ($this->_login_dry_run)
             return $user;
@@ -57,36 +57,36 @@ class Users extends Instance
             return $user;
 
         // If telegram is optional and the user doesn't have linked account, bypass
-        $bot_user = $WPTelegramPro->set_user(array('wp_id' => $user->ID));
-        if (!$bot_user && !$WPTelegramPro->get_option('telegram_bot_force_two_factor_auth', false))
+        $bot_user = $Teligro->set_user(array('wp_id' => $user->ID));
+        if (!$bot_user && !$Teligro->get_option('telegram_bot_force_two_factor_auth', false))
             return $user;
 
         $error = new WP_Error();
 
         // Validate dynamic code
-        if (empty($_POST['wptp-two_factor_code'])) {
-            $error->add('dynamic_code_missing', $WPTelegramPro->words['dynamic_code_missing']);
-            defined('WPTELEGRAMPRO_LOGIN_ERR') || define('WPTELEGRAMPRO_LOGIN_ERR', true);
+        if (empty($_POST['teligro-two_factor_code'])) {
+            $error->add('dynamic_code_missing', $Teligro->words['dynamic_code_missing']);
+            defined('TELIGRO_LOGIN_ERR') || define('TELIGRO_LOGIN_ERR', true);
             return $error;
         }
 
-        $code = $WPTelegramPro->get_user_meta('tfa_code', false);
-        $expireTime = $WPTelegramPro->get_user_meta('tfa_expire_time', false);
+        $code = $Teligro->get_user_meta('tfa_code', false);
+        $expireTime = $Teligro->get_user_meta('tfa_expire_time', false);
 
-        if (!$code || !$expireTime || $code != $_POST['wptp-two_factor_code']) {
-            $error->add('dynamic_code_not_correct', $WPTelegramPro->words['dynamic_code_not_correct']);
-            defined('WPTELEGRAMPRO_LOGIN_ERR') || define('WPTELEGRAMPRO_LOGIN_ERR', true);
+        if (!$code || !$expireTime || $code != $_POST['teligro-two_factor_code']) {
+            $error->add('dynamic_code_not_correct', $Teligro->words['dynamic_code_not_correct']);
+            defined('TELIGRO_LOGIN_ERR') || define('TELIGRO_LOGIN_ERR', true);
             return $error;
         }
 
-        if ($code == $_POST['wptp-two_factor_code'] && $expireTime < current_time('U')) {
-            $error->add('dynamic_code_expired', $WPTelegramPro->words['dynamic_code_expired']);
-            defined('WPTELEGRAMPRO_LOGIN_ERR') || define('WPTELEGRAMPRO_LOGIN_ERR', true);
+        if ($code == $_POST['teligro-two_factor_code'] && $expireTime < current_time('U')) {
+            $error->add('dynamic_code_expired', $Teligro->words['dynamic_code_expired']);
+            defined('TELIGRO_LOGIN_ERR') || define('TELIGRO_LOGIN_ERR', true);
             return $error;
         }
 
-        $WPTelegramPro->update_user_meta('tfa_code', false);
-        $WPTelegramPro->update_user_meta('tfa_expire_time', false);
+        $Teligro->update_user_meta('tfa_code', false);
+        $Teligro->update_user_meta('tfa_expire_time', false);
 
         return $user;
     }
@@ -99,9 +99,9 @@ class Users extends Instance
      */
     public function telegramBotTFA()
     {
-        $WPTelegramPro = $this->WPTelegramPro;
+        $Teligro = $this->Teligro;
 
-        if (!$this->WPTelegramPro->get_option('telegram_bot_two_factor_auth', false)) {
+        if (!$this->Teligro->get_option('telegram_bot_two_factor_auth', false)) {
             return REST::ok(array('bypassed' => 1));
         }
 
@@ -113,7 +113,7 @@ class Users extends Instance
         }
 
         if (empty($_POST[$field_u]) || empty($_POST[$field_p])) {
-            return REST::err($WPTelegramPro->words['empty_username_password']);
+            return REST::err($Teligro->words['empty_username_password']);
         }
 
         // Verify u & p first
@@ -125,21 +125,21 @@ class Users extends Instance
         }
 
         // Search if the user has linked Telegram account
-        $bot_user = $WPTelegramPro->set_user(array('wp_id' => $user->ID));
+        $bot_user = $Teligro->set_user(array('wp_id' => $user->ID));
         if (!$bot_user) {
-            if (!$WPTelegramPro->get_option('telegram_bot_force_two_factor_auth', false)) {
+            if (!$Teligro->get_option('telegram_bot_force_two_factor_auth', false)) {
                 return REST::ok(array('bypassed' => 1));
             }
-            return REST::err($WPTelegramPro->words['no_linked_telegram_account']);
+            return REST::err($Teligro->words['no_linked_telegram_account']);
         }
 
         // Generate dynamic code
-        $code = HelpersWPTP::randomStrings(5);
+        $code = Helpers::randomStrings(5);
         $expireTime = strtotime('+10 minutes', current_time('U'));
-        $message = __('Dynamic Code', WPTELEGRAMPRO_PLUGIN_KEY) . ': ' . $code;
+        $message = __('Dynamic Code', TELIGRO_PLUGIN_KEY) . ': ' . $code;
 
-        $updateCode = $WPTelegramPro->update_user_meta('tfa_code', $code);
-        $updateExpireTime = $WPTelegramPro->update_user_meta('tfa_expire_time', $expireTime);
+        $updateCode = $Teligro->update_user_meta('tfa_code', $code);
+        $updateExpireTime = $Teligro->update_user_meta('tfa_expire_time', $expireTime);
         $result = false;
 
         if ($updateCode && $updateExpireTime)
@@ -147,16 +147,16 @@ class Users extends Instance
 
         // Expected response
         if ($result && isset($result['ok']) && $result['ok']) {
-            $usernameStar = HelpersWPTP::string2Stars($bot_user['username']);
-            $message = sprintf(__('Sent dynamic code to this Telegram account @%s.', WPTELEGRAMPRO_PLUGIN_KEY), $usernameStar);
+            $usernameStar = Helpers::string2Stars($bot_user['username']);
+            $message = sprintf(__('Sent dynamic code to this Telegram account @%s.', TELIGRO_PLUGIN_KEY), $usernameStar);
             return REST::ok(array('info' => $message));
         }
 
         if ($result && isset($result['ok']) && !$result['ok']) {
-            return REST::err($WPTelegramPro->words['error_sending_message']);
+            return REST::err($Teligro->words['error_sending_message']);
         }
 
-        return REST::err($WPTelegramPro->words['unknown_error']);
+        return REST::err($Teligro->words['unknown_error']);
     }
 
     /**
@@ -168,15 +168,15 @@ class Users extends Instance
     public function login_enqueue_scripts()
     {
         $this->login_enqueue_style();
-        $js_version = date("ymd-Gis", filemtime(WPTELEGRAMPRO_ASSETS_DIR . 'js' . DIRECTORY_SEPARATOR . 'login.js'));
+        $js_version = date("ymd-Gis", filemtime(TELIGRO_ASSETS_DIR . 'js' . DIRECTORY_SEPARATOR . 'login.js'));
 
-        wp_register_script('wptp-login', WPTELEGRAMPRO_URL . '/assets/js/login.js', array('jquery'), $js_version, false);
+        wp_register_script('teligro-login', TELIGRO_URL . '/assets/js/login.js', array('jquery'), $js_version, false);
 
         $localize_data = array();
-        $localize_data['login_url'] = get_rest_url(null, 'wptelegrampro/v1/telegram_bot_auth');
-        wp_localize_script('wptp-login', 'wptelegrampro_login', $localize_data);
+        $localize_data['login_url'] = get_rest_url(null, 'teligro/v1/telegram_bot_auth');
+        wp_localize_script('teligro-login', 'teligro_login', $localize_data);
 
-        wp_enqueue_script('wptp-login');
+        wp_enqueue_script('teligro-login');
     }
 
     /**
@@ -185,8 +185,8 @@ class Users extends Instance
      */
     public function login_enqueue_style()
     {
-        wp_enqueue_style('wptp-login', WPTELEGRAMPRO_URL . '/assets/css/login.css', array(), WPTELEGRAMPRO_VERSION, 'all');
-        wp_enqueue_style('wptp-icon', WPTELEGRAMPRO_URL . '/assets/css/icon.css', array('wptp-login'), WPTELEGRAMPRO_VERSION, 'all');
+        wp_enqueue_style('teligro-login', TELIGRO_URL . '/assets/css/login.css', array(), TELIGRO_VERSION, 'all');
+        wp_enqueue_style('teligro-icon', TELIGRO_URL . '/assets/css/icon.css', array('teligro-login'), TELIGRO_VERSION, 'all');
     }
 
     /**
@@ -197,15 +197,15 @@ class Users extends Instance
      */
     public function login_form()
     {
-        $inputClass = apply_filters('wptelegrampro_input_class', '');
-        $login_form = '<p id="wptp-login-process">' . __('Telegram Authentication', WPTELEGRAMPRO_PLUGIN_KEY) . ':
-                            <span id="wptp-process-msg"></span>
+        $inputClass = apply_filters('teligro_input_class', '');
+        $login_form = '<p id="teligro-login-process">' . __('Telegram Authentication', TELIGRO_PLUGIN_KEY) . ':
+                            <span id="teligro-process-msg"></span>
                         </p>
-                        <p id="wptp-dynamic_code">
-                            <label for="wptp-two_factor_code">' . __('Dynamic Code', WPTELEGRAMPRO_PLUGIN_KEY) . ':</label>
-                            <br /><input type="text" name="wptp-two_factor_code" id="wptp-two_factor_code" class="' . $inputClass . '" autocomplete="off" />
+                        <p id="teligro-dynamic_code">
+                            <label for="teligro-two_factor_code">' . __('Dynamic Code', TELIGRO_PLUGIN_KEY) . ':</label>
+                            <br /><input type="text" name="teligro-two_factor_code" id="teligro-two_factor_code" class="' . $inputClass . '" autocomplete="off" />
                         </p>';
-        $login_form = apply_filters('wptelegrampro_tfa_login_form_output', $login_form);
+        $login_form = apply_filters('teligro_tfa_login_form_output', $login_form);
         echo $login_form;
     }
 
@@ -218,11 +218,11 @@ class Users extends Instance
      */
     public function login_message($msg)
     {
-        if (defined('WPTELEGRAMPRO_LOGIN_ERR'))
+        if (defined('TELIGRO_LOGIN_ERR'))
             return $msg;
 
-        $msg .= '<div class="message wptp-login-message"><span class="dashicons-wptp-telegram"></span> <strong class="title">' . $this->WPTelegramPro->plugin_name .
-            '</strong><br>' . __('Two step Telegram bot authentication is on', WPTELEGRAMPRO_PLUGIN_KEY) . '</div>';
+        $msg .= '<div class="message teligro-login-message"><span class="dashicons-teligro-telegram"></span> <strong class="title">' . $this->Teligro->plugin_name .
+            '</strong><br>' . __('Two step Telegram bot authentication is on', TELIGRO_PLUGIN_KEY) . '</div>';
         return $msg;
     }
 
@@ -237,15 +237,15 @@ class Users extends Instance
     function send_notification($bot_user, $message, $user)
     {
         if ($bot_user) {
-            $telegram = $this->WPTelegramPro->telegram;
-            $text = "*" . sprintf(__('Dear %s', WPTELEGRAMPRO_PLUGIN_KEY), $user->display_name) . "*\n";
+            $telegram = $this->Teligro->telegram;
+            $text = "*" . sprintf(__('Dear %s', TELIGRO_PLUGIN_KEY), $user->display_name) . "*\n";
             $text .= $message;
-            $text = apply_filters('wptelegrampro_two_factor_auth_notification_text', $text, $bot_user, $message, $user);
+            $text = apply_filters('teligro_two_factor_auth_notification_text', $text, $bot_user, $message, $user);
 
             if ($text) {
                 $keyboard = array(array(
                     array(
-                        'text' => __('Display website', WPTELEGRAMPRO_PLUGIN_KEY),
+                        'text' => __('Display website', TELIGRO_PLUGIN_KEY),
                         'url' => get_bloginfo('url')
                     )
                 ));

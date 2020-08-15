@@ -1,14 +1,14 @@
 <?php
 
-namespace wptelegrampro;
+namespace teligro;
 
 if ( ! defined( 'ABSPATH' ) )
 	exit;
 if ( ! class_exists( 'WooCommerce' ) )
 	return;
 
-class WooCommerceWPTP extends WPTelegramPro {
-	protected $tabID = 'woocommerce-wptp-tab', $default_products_keyboard;
+class WooCommerce extends Teligro {
+	protected $tabID = 'woocommerce-teligro-tab', $default_products_keyboard;
 	public static $instance = null;
 
 	public function __construct() {
@@ -20,16 +20,16 @@ class WooCommerceWPTP extends WPTelegramPro {
 			)
 		);
 
-		add_filter( 'wptelegrampro_words', [ $this, 'words' ] );
-		add_filter( 'wptelegrampro_patterns_tags', [ $this, 'patterns_tags' ] );
-		add_filter( 'wptelegrampro_query_args', [ $this, 'query_args' ], 10, 2 );
-		add_filter( 'wptelegrampro_post_info', [ $this, 'product_info' ], 10, 3 );
-		add_filter( 'wptelegrampro_default_keyboard', [ $this, 'default_keyboard' ], 20 );
-		add_filter( 'wptelegrampro_settings_tabs', [ $this, 'settings_tab' ], 30 );
-		add_action( 'wptelegrampro_settings_content', [ $this, 'settings_content' ] );
-		add_action( 'wptelegrampro_inline_keyboard_response', [ $this, 'inline_keyboard_response' ] );
-		add_action( 'wptelegrampro_keyboard_response', [ $this, 'keyboard_response' ] );
-		add_filter( 'wptelegrampro_default_commands', [ $this, 'default_commands' ], 20 );
+		add_filter( 'teligro_words', [ $this, 'words' ] );
+		add_filter( 'teligro_patterns_tags', [ $this, 'patterns_tags' ] );
+		add_filter( 'teligro_query_args', [ $this, 'query_args' ], 10, 2 );
+		add_filter( 'teligro_post_info', [ $this, 'product_info' ], 10, 3 );
+		add_filter( 'teligro_default_keyboard', [ $this, 'default_keyboard' ], 20 );
+		add_filter( 'teligro_settings_tabs', [ $this, 'settings_tab' ], 30 );
+		add_action( 'teligro_settings_content', [ $this, 'settings_content' ] );
+		add_action( 'teligro_inline_keyboard_response', [ $this, 'inline_keyboard_response' ] );
+		add_action( 'teligro_keyboard_response', [ $this, 'keyboard_response' ] );
+		add_filter( 'teligro_default_commands', [ $this, 'default_commands' ], 20 );
 
 		add_action( 'wp', [ $this, 'cart_init' ], 99999 );
 		add_action( 'woocommerce_payment_complete', [ $this, 'woocommerce_payment_complete' ] );
@@ -53,7 +53,7 @@ class WooCommerceWPTP extends WPTelegramPro {
 
 		add_action( 'delete_comment', [ $this, 'order_note_delete_notification' ], 10, 2 );
 
-		$this->words = apply_filters( 'wptelegrampro_words', $this->words );
+		$this->words = apply_filters( 'teligro_words', $this->words );
 	}
 
 	/**
@@ -94,14 +94,13 @@ class WooCommerceWPTP extends WPTelegramPro {
 
 			if ( $product_stock_amount <= $no_stock_amount ) {
 				$text .= __( 'No stock', $this->plugin_key ) . "\n";
-
 			} elseif ( $product_stock_amount <= $low_stock_amount ) {
 				$text .= __( 'Low stock', $this->plugin_key ) . "\n";
 				$text .= __( 'Current quantity', $this->plugin_key ) . ': ' . $product_stock_amount . "\n";
 			}
-			$text .= __( 'Date', $this->plugin_key ) . ': ' . HelpersWPTP::localeDate() . "\n";
+			$text .= __( 'Date', $this->plugin_key ) . ': ' . Helpers::localeDate() . "\n";
 
-			$text = apply_filters( 'wptelegrampro_wc_admin_product_stock_change_notification_text', $text, $product );
+			$text = apply_filters( 'teligro_wc_admin_product_stock_change_notification_text', $text, $product );
 
 			foreach ( $users as $user ) {
 				$this->telegram->sendMessage( $text, $keyboards, $user['user_id'], 'Markdown' );
@@ -139,9 +138,9 @@ class WooCommerceWPTP extends WPTelegramPro {
 			$text .= __( 'Old status', $this->plugin_key ) . ': ' . wc_get_order_status_name( $old_status ) . "\n";
 			$text .= __( 'New status', $this->plugin_key ) . ': ' . wc_get_order_status_name( $new_status ) . "\n";
 			$text .= __( 'Date',
-					$this->plugin_key ) . ': ' . HelpersWPTP::localeDate( $order->get_date_modified() ) . "\n";
+					$this->plugin_key ) . ': ' . Helpers::localeDate( $order->get_date_modified() ) . "\n";
 
-			$text = apply_filters( 'wptelegrampro_wc_admin_order_status_notification_text', $text, $order, $order_id );
+			$text = apply_filters( 'teligro_wc_admin_order_status_notification_text', $text, $order, $order_id );
 
 			foreach ( $users as $user ) {
 				$this->telegram->sendMessage( $text, $keyboards, $user['user_id'], 'Markdown' );
@@ -185,8 +184,8 @@ class WooCommerceWPTP extends WPTelegramPro {
 				$text .= __( 'Order number', $this->plugin_key ) . ': ' . $order_id . "\n";
 				$text .= __( 'New status', $this->plugin_key ) . ': ' . wc_get_order_status_name( $new_status ) . "\n";
 				$text .= __( 'Date',
-						$this->plugin_key ) . ': ' . HelpersWPTP::localeDate( $order->get_date_modified() ) . "\n";
-				$text = apply_filters( 'wptelegrampro_wc_user_order_status_notification_text', $text, $order,
+						$this->plugin_key ) . ': ' . Helpers::localeDate( $order->get_date_modified() ) . "\n";
+				$text = apply_filters( 'teligro_wc_user_order_status_notification_text', $text, $order,
 					$order_id );
 
 				$this->telegram->sendMessage( $text, $keyboards, $user['user_id'], 'Markdown' );
@@ -226,9 +225,9 @@ class WooCommerceWPTP extends WPTelegramPro {
 			$text = "*" . __( 'New order note', $this->plugin_key ) . "*\n\n";
 			$text .= __( 'Order number', $this->plugin_key ) . ': ' . $order_id . "\n";
 			$text .= __( 'Note', $this->plugin_key ) . ': ' . "\n" . $content . "\n";
-			$text .= __( 'Date', $this->plugin_key ) . ': ' . HelpersWPTP::localeDate() . "\n";
+			$text .= __( 'Date', $this->plugin_key ) . ': ' . Helpers::localeDate() . "\n";
 
-			$text = apply_filters( 'wptelegrampro_wc_admin_order_note_notification_text', $text, $content, $order_id );
+			$text = apply_filters( 'teligro_wc_admin_order_note_notification_text', $text, $content, $order_id );
 
 			foreach ( $users as $user ) {
 				$this->telegram->sendMessage( $text, $keyboards, $user['user_id'], 'Markdown' );
@@ -278,8 +277,8 @@ class WooCommerceWPTP extends WPTelegramPro {
 				$text = "*" . __( 'New order note', $this->plugin_key ) . "*\n\n";
 				$text .= __( 'Order number', $this->plugin_key ) . ': ' . $order_id . "\n";
 				$text .= __( 'Note', $this->plugin_key ) . ': ' . "\n" . $customer_note . "\n";
-				$text .= __( 'Date', $this->plugin_key ) . ': ' . HelpersWPTP::localeDate() . "\n";
-				$text = apply_filters( 'wptelegrampro_wc_user_order_note_customer_notification_text', $text,
+				$text .= __( 'Date', $this->plugin_key ) . ': ' . Helpers::localeDate() . "\n";
+				$text = apply_filters( 'teligro_wc_user_order_note_customer_notification_text', $text,
 					$customer_note, $order_id );
 
 				$this->telegram->sendMessage( $text, $keyboards, $user['user_id'], 'Markdown' );
@@ -299,7 +298,7 @@ class WooCommerceWPTP extends WPTelegramPro {
 		if ( $comment->comment_type != 'order_note' )
 			return;
 
-		$meta = get_comment_meta( $commentID, 'order_note_message_wptp', true );
+		$meta = get_comment_meta( $commentID, 'order_note_message_teligro', true );
 		if ( ! $meta || empty( $meta ) )
 			return;
 
@@ -316,13 +315,13 @@ class WooCommerceWPTP extends WPTelegramPro {
 	}
 
 	private function save_message_id_order_note( $commentID, $userID, $messageID ) {
-		$meta     = get_comment_meta( $commentID, 'order_note_message_wptp', true );
+		$meta     = get_comment_meta( $commentID, 'order_note_message_teligro', true );
 		$messages = array();
 		if ( $meta && ! empty( $meta ) )
 			$messages = explode( '|', $meta );
 		$messages[] = $userID . '-' . $messageID;
 		$meta       = implode( '|', $messages );
-		update_comment_meta( $commentID, 'order_note_message_wptp', $meta );
+		update_comment_meta( $commentID, 'order_note_message_teligro', $meta );
 	}
 
 	/**
@@ -354,7 +353,7 @@ class WooCommerceWPTP extends WPTelegramPro {
 			$text .= __( 'Order number', $this->plugin_key ) . ': ' . $order_id . "\n";
 			$text .= __( 'Status', $this->plugin_key ) . ': ' . wc_get_order_status_name( $order->get_status() ) . "\n";
 			$text .= __( 'Date',
-					$this->plugin_key ) . ': ' . HelpersWPTP::localeDate( $order->get_date_modified() ) . "\n";
+					$this->plugin_key ) . ': ' . Helpers::localeDate( $order->get_date_modified() ) . "\n";
 			$text .= __( 'Email', $this->plugin_key ) . ': ' . $order->get_billing_email() . "\n";
 			$text .= __( 'Total price', $this->plugin_key ) . ': ' . $this->wc_price( $order->get_total() ) . "\n";
 			$text .= __( 'Payment method', $this->plugin_key ) . ': ' . $order->get_payment_method_title() . "\n";
@@ -368,7 +367,7 @@ class WooCommerceWPTP extends WPTelegramPro {
 				$text          .= $product_name . ' × ' . $item_quantity . ' = ' . $item_total . "\n";
 			}
 
-			$text = apply_filters( 'wptelegrampro_wc_new_order_notification_text', $text, $order, $order_id );
+			$text = apply_filters( 'teligro_wc_new_order_notification_text', $text, $order, $order_id );
 
 			foreach ( $users as $user ) {
 				$this->telegram->sendMessage( $text, $keyboards, $user['user_id'], 'Markdown' );
@@ -377,7 +376,7 @@ class WooCommerceWPTP extends WPTelegramPro {
 	}
 
 	function user_disconnect() {
-		if ( isset( $_GET['user-disconnect-wptp'] ) && $this->disconnect_telegram_wp_user() ) {
+		if ( isset( $_GET['user-disconnect-teligro'] ) && $this->disconnect_telegram_wp_user() ) {
 			$disconnect_message = $this->get_option( 'telegram_connectivity_disconnect_message',
 				$this->words['profile_disconnect'] );
 			if ( ! empty( $disconnect_message ) )
@@ -426,7 +425,7 @@ class WooCommerceWPTP extends WPTelegramPro {
 	}
 
 	function default_keyboard( $keyboard ) {
-		$this->words  = apply_filters( 'wptelegrampro_words', $this->words );
+		$this->words  = apply_filters( 'teligro_words', $this->words );
 		$new_keyboard = array(
 			$this->words['products'],
 			$this->words['product_categories'],
@@ -605,7 +604,7 @@ class WooCommerceWPTP extends WPTelegramPro {
 
 	function keyboard_response( $user_text ) {
 		$words       = $this->words;
-		$this->words = apply_filters( 'wptelegrampro_words', $this->words );
+		$this->words = apply_filters( 'teligro_words', $this->words );
 		if ( $user_text == '/products' || $user_text == $words['products'] ) {
 			$this->update_user( array( 'page' => 1 ) );
 			$this->update_user_meta( 'product_category_id', null );
@@ -625,35 +624,31 @@ class WooCommerceWPTP extends WPTelegramPro {
 			$products = $this->query( $args );
 
 			$this->send_products( $products );
-
 		} elseif ( $user_text == '/product_categories' || $user_text == $words['product_categories'] ) {
 			$product_category = $this->get_tax_keyboard( 'product_category', 'product_cat', 'parent',
 				$this->get_option( 'wc_exclude_display_categories' ) );
 			$keyboard         = $this->telegram->keyboard( $product_category, 'inline_keyboard' );
 			$this->telegram->sendMessage( $words['product_categories'] . ":", $keyboard );
-
 		} elseif ( $user_text == '/cart' || $user_text == $words['cart'] ) {
 			$this->cart();
 		}
 	}
 
 	function inline_keyboard_response( $data ) {
-		$this->words = apply_filters( 'wptelegrampro_words', $this->words );
+		$this->words = apply_filters( 'teligro_words', $this->words );
 		$button_data = $data['data'];
 
-		if ( $this->button_data_check( $button_data, 'product_variation_back' ) ) {
-			$button_data = explode( '_', $button_data );
-			$product     = $this->query( array( 'p' => $button_data['3'], 'post_type' => 'product' ) );
-			$keyboard    = $this->product_keyboard( $product, $button_data['4'] );
-			$keyboards   = $this->telegram->keyboard( $keyboard, 'inline_keyboard' );
-			$this->telegram->editMessageReplyMarkup( $keyboards, $button_data['4'] );
+		$btnData = explode( '_', $button_data );
 
+		if ( $this->button_data_check( $button_data, 'product_variation_back' ) ) {
+			$product   = $this->query( array( 'p' => $button_data['3'], 'post_type' => 'product' ) );
+			$keyboard  = $this->product_keyboard( $product, $button_data['4'] );
+			$keyboards = $this->telegram->keyboard( $keyboard, 'inline_keyboard' );
+			$this->telegram->editMessageReplyMarkup( $keyboards, $button_data['4'] );
 		} elseif ( $this->button_data_check( $button_data, 'product_variation_header' ) ) {
-			$button_data = explode( '_', $button_data );
 			$this->telegram->answerCallbackQuery( $button_data['5'] );
 			$product = $this->query( array( 'p' => $button_data['3'], 'post_type' => 'product' ) );
 			$this->product_keyboard_variations( $product, $button_data['5'], $button_data['4'] );
-
 		} elseif ( $this->button_data_check( $button_data, 'select_product_variation' ) ) {
 			$button_data_ = explode( '||', $button_data );
 			$button_data  = explode( '_', $button_data_[0] );
@@ -661,11 +656,9 @@ class WooCommerceWPTP extends WPTelegramPro {
 			$product      = $this->query( array( 'p' => $button_data['3'], 'post_type' => 'product' ) );
 			$this->select_product_variation( $product, $button_data['5'], $button_data['6'], $button_data['7'],
 				$button_data['4'], $taxonomy );
-
 		} elseif ( $this->button_data_check( $button_data, 'image_galleries' ) ) {
-			$image_send_mode = apply_filters( 'wptelegrampro_image_send_mode', 'image_path' );
-
-			$product_id = intval( end( explode( '_', $button_data ) ) );
+			$image_send_mode = apply_filters( 'teligro_image_send_mode', 'image_path' );
+			$product_id      = intval( end( $btnData ) );
 			if ( get_post_status( $product_id ) === 'publish' ) {
 				$image_size = $this->get_option( 'image_size' );
 				$this->telegram->answerCallbackQuery( __( 'Galleries',
@@ -695,8 +688,9 @@ class WooCommerceWPTP extends WPTelegramPro {
 								$keyboard  = array(
 									array(
 										array(
-											'text'                                   => __( 'Back to Product',
-												$this->plugin_key ), 'callback_data' => 'product_detail_' . $product_id
+											'text'          => __( 'Back to Product',
+												$this->plugin_key ),
+											'callback_data' => 'product_detail_' . $product_id
 										)
 									)
 								);
@@ -711,9 +705,8 @@ class WooCommerceWPTP extends WPTelegramPro {
 			} else {
 				$this->telegram->answerCallbackQuery( __( 'The product does not exist', $this->plugin_key ) );
 			}
-
 		} elseif ( $this->button_data_check( $button_data, 'add_to_cart' ) ) {
-			$button_data = explode( '_', $button_data );
+			$button_data = $btnData;
 			if ( get_post_status( $button_data['3'] ) === 'publish' ) {
 				$in_cart      = $this->check_cart( $button_data['3'] );
 				$can_to_cart  = $this->can_to_cart( $button_data['3'] );
@@ -740,9 +733,8 @@ class WooCommerceWPTP extends WPTelegramPro {
 			} else {
 				$this->telegram->answerCallbackQuery( __( 'The product does not exist', $this->plugin_key ) );
 			}
-
 		} elseif ( $this->button_data_check( $button_data, 'product_detail' ) ) {
-			$product_id = intval( end( explode( '_', $button_data ) ) );
+			$product_id = intval( end( $btnData ) );
 			if ( get_post_status( $product_id ) === 'publish' ) {
 				$this->telegram->answerCallbackQuery( __( 'Product',
 						$this->plugin_key ) . ': ' . get_the_title( $product_id ) );
@@ -751,7 +743,6 @@ class WooCommerceWPTP extends WPTelegramPro {
 			} else {
 				$this->telegram->answerCallbackQuery( __( 'The product does not exist', $this->plugin_key ) );
 			}
-
 		} elseif ( $this->button_data_check( $button_data, 'product_page_' ) ) {
 			$current_page = intval( $this->user['page'] ) == 0 ? 1 : intval( $this->user['page'] );
 			if ( $button_data == 'product_page_next' )
@@ -775,25 +766,25 @@ class WooCommerceWPTP extends WPTelegramPro {
 			);
 			$products = $this->query( $args );
 			$this->send_products( $products );
-
 		} elseif ( $this->button_data_check( $button_data, 'product_category' ) ) {
 			$this->update_user( array( 'page' => 1 ) );
-			$product_category_id = intval( end( explode( '_', $button_data ) ) );
+			$product_category_id = intval( end( $btnData ) );
 			$this->update_user_meta( 'product_category_id', $product_category_id );
 			$product_category = get_term( $product_category_id, 'product_cat' );
 			if ( $product_category ) {
 				$this->telegram->answerCallbackQuery( __( 'Category' ) . ': ' . $product_category->name );
 				$products = $this->query( array(
-					'category_id'        => $product_category_id, 'per_page' => $this->get_option( 'products_per_page',
-						1 ), 'post_type' => 'product'
+					'category_id' => $product_category_id,
+					'per_page'    => $this->get_option( 'products_per_page',
+						1 ),
+					'post_type'   => 'product'
 				) );
 				$this->send_products( $products );
 			} else {
 				$this->telegram->answerCallbackQuery( __( 'Product Category Invalid!', $this->plugin_key ) );
 			}
-
 		} elseif ( $this->button_data_check( $button_data, 'confirm_empty_cart' ) ) {
-			$message_id = intval( end( explode( '_', $button_data ) ) );
+			$message_id = intval( end( $btnData ) );
 			$this->telegram->answerCallbackQuery( $this->words['confirm_empty_cart'] );
 			$keyboard  = array(
 				array(
@@ -809,19 +800,16 @@ class WooCommerceWPTP extends WPTelegramPro {
 			);
 			$keyboards = $this->telegram->keyboard( $keyboard, 'inline_keyboard' );
 			$this->telegram->editMessageReplyMarkup( $keyboards, $message_id );
-
 		} elseif ( $this->button_data_check( $button_data, 'empty_cart_no' ) ) {
-			$message_id = intval( end( explode( '_', $button_data ) ) );
+			$message_id = intval( end( $btnData ) );
 			$this->cart( $message_id );
-
 		} elseif ( $this->button_data_check( $button_data, 'empty_cart_yes' ) ) {
-			$message_id = intval( end( explode( '_', $button_data ) ) );
+			$message_id = intval( end( $btnData ) );
 			$this->telegram->answerCallbackQuery( $this->words['cart_emptied'] );
 			$this->telegram->editMessageText( $this->words['cart_emptied'], $message_id );
 			$this->update_user( array( 'cart' => serialize( array() ) ) );
-
 		} elseif ( $this->button_data_check( $button_data, 'refresh_cart' ) ) {
-			$message_id = intval( end( explode( '_', $button_data ) ) );
+			$message_id = intval( end( $btnData ) );
 			$this->telegram->answerCallbackQuery( $this->words['refresh_cart'] );
 			$this->cart( $message_id, $refresh = true );
 		}
@@ -836,7 +824,7 @@ class WooCommerceWPTP extends WPTelegramPro {
 	function settings_content() {
 		$this->options = get_option( $this->plugin_key );
 		?>
-        <div id="<?php echo $this->tabID ?>-content" class="wptp-tab-content hidden">
+        <div id="<?php echo $this->tabID ?>-content" class="teligro-tab-content hidden">
             <table>
                 <tr>
                     <td>
@@ -853,7 +841,8 @@ class WooCommerceWPTP extends WPTelegramPro {
                     </td>
                     <td><?php echo $this->dropdown_categories( 'wc_exclude_categories[]', 'product_cat',
 							$this->get_option( 'wc_exclude_categories' ), array(
-								'blank' => __( 'None', $this->plugin_key ), 'class' => 'multi_select_none_wptp'
+								'blank' => __( 'None', $this->plugin_key ),
+								'class' => 'multi_select_none_teligro'
 							) ); ?></td>
                 </tr>
                 <tr>
@@ -863,7 +852,8 @@ class WooCommerceWPTP extends WPTelegramPro {
                     </td>
                     <td><?php echo $this->dropdown_categories( 'wc_exclude_display_categories[]', 'product_cat',
 							$this->get_option( 'wc_exclude_display_categories' ), array(
-								'blank' => __( 'None', $this->plugin_key ), 'class' => 'multi_select_none_wptp'
+								'blank' => __( 'None', $this->plugin_key ),
+								'class' => 'multi_select_none_teligro'
 							) ); ?></td>
                 </tr>
                 <tr>
@@ -991,7 +981,10 @@ class WooCommerceWPTP extends WPTelegramPro {
 			array(
 				// array('text' => __('Detail', $this->plugin_key), 'callback_data' => 'product_detail_' . $product['ID']),
 				array( 'text' => '🔗️', 'url' => $product['link'] ),
-				array( 'text' => ( $in_cart ? '- ' : '+ ' ) . '🛒', 'callback_data' => 'add_to_cart_' . $product['ID'] . '_' . $message_id ),
+				array(
+					'text'          => ( $in_cart ? '- ' : '+ ' ) . '🛒',
+					'callback_data' => 'add_to_cart_' . $product['ID'] . '_' . $message_id
+				),
 			)
 		);
 
@@ -1067,7 +1060,6 @@ class WooCommerceWPTP extends WPTelegramPro {
 
 		return $keyboard;
 	}
-
 
 	function select_product_variation(
 		$product,
@@ -1261,9 +1253,9 @@ class WooCommerceWPTP extends WPTelegramPro {
 
 	function send_products( $products ) {
 		if ( count( $products['product'] ) ) {
-			$image_send_mode = apply_filters( 'wptelegrampro_image_send_mode', 'image_path' );
+			$image_send_mode = apply_filters( 'teligro_image_send_mode', 'image_path' );
 
-			$this->words  = apply_filters( 'wptelegrampro_words', $this->words );
+			$this->words  = apply_filters( 'teligro_words', $this->words );
 			$keyboard     = $this->default_products_keyboard;
 			$i            = 1;
 			$current_page = $this->user['page'];
@@ -1274,9 +1266,15 @@ class WooCommerceWPTP extends WPTelegramPro {
 				if ( $products['max_num_pages'] > 1 && $i == count( $products['product'] ) ) {
 					$keyboard[1] = array();
 					if ( $current_page > 1 )
-						$keyboard[1][] = array( 'text' => $this->words['prev_page'], 'callback_data' => 'product_page_prev' );
+						$keyboard[1][] = array(
+							'text'          => $this->words['prev_page'],
+							'callback_data' => 'product_page_prev'
+						);
 					if ( $current_page < $products['max_num_pages'] )
-						$keyboard[1][] = array( 'text' => $this->words['next_page'], 'callback_data' => 'product_page_next' );
+						$keyboard[1][] = array(
+							'text'          => $this->words['next_page'],
+							'callback_data' => 'product_page_next'
+						);
 					if ( is_rtl() )
 						$keyboard[1] = array_reverse( $keyboard[1] );
 				}
@@ -1293,7 +1291,7 @@ class WooCommerceWPTP extends WPTelegramPro {
 	}
 
 	function send_product( $product ) {
-		$image_send_mode = apply_filters( 'wptelegrampro_image_send_mode', 'image_path' );
+		$image_send_mode = apply_filters( 'teligro_image_send_mode', 'image_path' );
 		$price           = $this->product_price( $product );
 		$add_info        = '';
 		$metas           = array();
@@ -1321,7 +1319,6 @@ class WooCommerceWPTP extends WPTelegramPro {
 				$items = array();
 				if ( $variation['is_taxonomy'] == 0 ) {
 					$items = array_map( 'urldecode', array_map( 'trim', explode( '|', $variation['value'] ) ) );
-
 				} elseif ( $variation['is_taxonomy'] == 1 ) {
 					$terms = get_the_terms( $product['ID'], $variation['name'] );
 					foreach ( $terms as $term ) {
@@ -1436,14 +1433,14 @@ class WooCommerceWPTP extends WPTelegramPro {
 	function cart_url() {
 		$url = wc_get_cart_url();
 		$url .= strpos( $url, '?' ) === false ? '?' : '&';
-		$url .= 'wptpurid=' . $this->user_field( 'rand_id' );
+		$url .= 'teligrourid=' . $this->user_field( 'rand_id' );
 
 		return $url;
 	}
 
 	function cart_init() {
-		if ( is_cart() && ! is_ajax() && isset( $_GET['wptpurid'] ) && is_numeric( $_GET['wptpurid'] ) && function_exists( 'wc' ) ) {
-			$user = $this->set_user( array( 'rand_id' => $_GET['wptpurid'] ) );
+		if ( is_cart() && ! is_ajax() && isset( $_GET['teligrourid'] ) && is_numeric( $_GET['teligrourid'] ) && function_exists( 'wc' ) ) {
+			$user = $this->set_user( array( 'rand_id' => $_GET['teligrourid'] ) );
 			if ( $user === null )
 				return;
 
@@ -1484,7 +1481,6 @@ class WooCommerceWPTP extends WPTelegramPro {
 								}
 								WC()->cart->add_to_cart( $product_id, 1, $variation_id, $product_variation );
 							}
-
 						} elseif ( ! $found ) {
 							WC()->cart->add_to_cart( $product_id );
 						}
@@ -1514,14 +1510,14 @@ class WooCommerceWPTP extends WPTelegramPro {
 
 	/**
 	 * Returns an instance of class
-	 * @return WooCommerceWPTP
+	 * @return WooCommerce
 	 */
 	static function getInstance() {
 		if ( self::$instance == null )
-			self::$instance = new WooCommerceWPTP();
+			self::$instance = new WooCommerce();
 
 		return self::$instance;
 	}
 }
 
-$WooCommerceWPTP = WooCommerceWPTP::getInstance();
+WooCommerce::getInstance();

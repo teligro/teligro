@@ -1,9 +1,9 @@
 
-.wptp-login-message {
+.teligro-login-message {
     line-height: 2em;
 }
 
-.wptp-login-message .dashicons-wptp-telegram {
+.teligro-login-message .dashicons-teligro-telegram {
     float: right;
     padding: 5px;
     border-radius: 50%;
@@ -11,29 +11,29 @@
     border: 2px solid #0088cc;
 }
 
-.wptp-login-message .title {
+.teligro-login-message .title {
     text-transform: uppercase;
 }
 
-#wptp-login-process, #wptp-dynamic_code {
+#teligro-login-process, #teligro-dynamic_code {
     display: none;
     margin-bottom: 1em !important;
 }
 
-.wptp-err {
+.teligro-err {
     color: #ff1744;
 }
 
-.wptp-success {
+.teligro-success {
     color: #0088cc;
 }
 
-#wptp-process {
+#teligro-process {
     color: rgba(27, 136, 185, 0.8);
     padding-bottom: 10px;
 }
 
-.wptp-spinner {
+.teligro-spinner {
     display: inline-block;
     width: 43px;
     height: 11px;
@@ -41,6 +41,6 @@
     background-image: url('data:image/gif;base64,R0lGODlhKwALAPEAAP///wCIzILE5QCIzCH/C05FVFNDQVBFMi4wAwEAAAAh/hpDcmVhdGVkIHdpdGggYWpheGxvYWQuaW5mbwAh+QQJCgAAACwAAAAAKwALAAACMoSOCMuW2diD88UKG95W88uF4DaGWFmhZid93pq+pwxnLUnXh8ou+sSz+T64oCAyTBUAACH5BAkKAAAALAAAAAArAAsAAAI9xI4IyyAPYWOxmoTHrHzzmGHe94xkmJifyqFKQ0pwLLgHa82xrekkDrIBZRQab1jyfY7KTtPimixiUsevAAAh+QQJCgAAACwAAAAAKwALAAACPYSOCMswD2FjqZpqW9xv4g8KE7d54XmMpNSgqLoOpgvC60xjNonnyc7p+VKamKw1zDCMR8rp8pksYlKorgAAIfkECQoAAAAsAAAAACsACwAAAkCEjgjLltnYmJS6Bxt+sfq5ZUyoNJ9HHlEqdCfFrqn7DrE2m7Wdj/2y45FkQ13t5itKdshFExC8YCLOEBX6AhQAADsAAAAAAAAAAAA=');
 }
 
-body.rtl .wptp-login-message .dashicons-wptp-telegram {
+body.rtl .teligro-login-message .dashicons-teligro-telegram {
     float: left;
 }

@@ -1,16 +1,16 @@
 <?php
 
-namespace wptelegrampro;
+namespace teligro;
 /**
- * WPTelegramPro Helper functions
+ * Teligro Helper functions
  *
- * @link       https://wordpress.org/plugins/wp-telegram-pro
+ * @link       https://wordpress.org/plugins/teligro
  * @since      1.0.0
  *
- * @package    WPTelegramPro
- * @subpackage WPTelegramPro/inc
+ * @package    Teligro
+ * @subpackage Teligro/inc
  */
-class HelpersWPTP
+class Helpers
 {
     public static function dd($data, $echo = true)
     {
@@ -134,7 +134,7 @@ class HelpersWPTP
 
     public static function getURLHost($url)
     {
-        if (!HelpersWPTP::startsWith($url, ['http://', 'https://', 'ssl://'])) {
+        if (!Helpers::startsWith($url, ['http://', 'https://', 'ssl://'])) {
             $url = "https://{$url}";
         }
 
@@ -298,7 +298,7 @@ class HelpersWPTP
 
     public static function localeDate($time = null, $format = "Y/m/d H:i:s")
     {
-        $format = apply_filters('wptelegrampro_date_format', $format);
+        $format = apply_filters('teligro_date_format', $format);
 
         if ($time == null) $time = date("Y-m-d H:i:s");
 
