@@ -30,7 +30,7 @@ class Debugs extends Teligro {
 	}
 
 	/**
-	 * Add menu to WP Telegram Pro main menu
+	 * Add menu to plugin main menu
 	 */
 	function menu() {
 		add_submenu_page( $this->plugin_key, $this->plugin_name . $this->page_title_divider . $this->page_title,
@@ -162,7 +162,7 @@ class Debugs extends Teligro {
 	}
 
 	/**
-	 * Add WP Telegram Pro info to debugs
+	 * Add plugin info to debugs
 	 *
 	 * @param $debugs string Debugs Info Array
 	 *

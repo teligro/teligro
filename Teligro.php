@@ -76,7 +76,7 @@ class Teligro {
 		$this->options            = get_option( $this->plugin_key );
 		$this->telegram           = new Telegram( $this->get_option( 'api_token' ) );
 		$this->db_users_table     = $wpdb->prefix . 'teligro_users';
-		$this->plugin_name        = __( 'WP Telegram Pro', $this->plugin_key );
+		$this->plugin_name        = __( 'Teligro', $this->plugin_key );
 		$this->now                = date( "Y-m-d H:i:s" );
 		$this->init( $bypass );
 		$this->words = apply_filters( 'teligro_words', $this->words );
@@ -207,7 +207,7 @@ class Teligro {
 		?>
         <div id="<?php echo $this->aboutTabID ?>-content" class="teligro-tab-content hidden">
             <h3><?php _e( 'Integrate WordPress with Telegram', $this->plugin_key ) ?></h3>
-            <p><?php _e( 'Do you like WP Telegram Pro?', $this->plugin_key ) ?>
+            <p><?php _e( 'Do you like Teligro?', $this->plugin_key ) ?>
                 <br>
                 <a href="https://wordpress.org/support/plugin/teligro/reviews/#new-post" target="_blank">
 					<?php _e( 'Give it a rating', $this->plugin_key ) ?>
@@ -1091,7 +1091,7 @@ class Teligro {
 		$to_telegram = preg_match( $pattern, $url );
 		$by_teligro  = ( isset( $r['headers']['teligro'] ) && $r['headers']['teligro'] );
 
-		// if the request is sent to Telegram by WP Telegram Pro
+		// if the request is sent to Telegram by Plugin
 		return $to_telegram && $by_teligro;
 	}
 

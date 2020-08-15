@@ -676,7 +676,7 @@ class Channel extends Teligro
                         'channel_username' => '',
                         'channel_post_type' => array(),
                         'send_to_channel' => 1,
-                        'message_pattern' => '',
+                        'message_pattern' => "{title}\n{excerpt}\n\n{short-link}",
                         'with_featured_image' => 1,
                         'formatting_messages' => 'simple',
                         'excerpt_length' => '',

@@ -25,8 +25,8 @@ class DomainInfo
     {
         // Download DB File: https://lite.ip2location.com/file-download, https://lite.ip2location.com/download?id=2
         $db = dirname(__FILE__) . DIRECTORY_SEPARATOR . 'IP2LOCATION-LITE-DB1.BIN';
-        $db = new \IP2Location\Database($db, \IP2Location\Database::FILE_IO);
-        $records = $db->lookup($ip, \IP2Location\Database::COUNTRY);
+        $db = new \IP2LocationTeligro\Database($db, \IP2LocationTeligro\Database::FILE_IO);
+        $records = $db->lookup($ip, \IP2LocationTeligro\Database::COUNTRY);
 
         return $records;
     }
