@@ -1,14 +1,14 @@
 <?php
 /**
  * Plugin Name: Teligro
- * Plugin URI: https://github.com/wp-telegram-pro/wp-telegram-pro
+ * Plugin URI: https://github.com/teligro/teligro
  * Description: Integrate WordPress with Telegram
  * Author: Parsa Kafi
  * Version: 1.0
  * Author URI: http://parsa.ws
  * Text Domain: teligro
  * WC requires at least: 3.0.0
- * WC tested up to: 4.0.1
+ * WC tested up to: 4.3.3
  */
 
 namespace teligro;
