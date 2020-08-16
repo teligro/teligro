@@ -28,6 +28,7 @@ class WordPress extends Teligro {
 		add_action( 'wp_before_admin_bar_render', [ $this, 'admin_bar_render' ] );
 		add_action( 'admin_notices', [ $this, 'user_disconnect' ] );
 		add_action( 'init', [ $this, 'user_init' ], 88888 );
+		add_filter( 'pre_update_option_active_plugins', [ $this, 'reorderActivePlugins' ], 9999999, 3 );
 
 		if ( $this->get_option( 'new_comment_notification', false ) )
 			add_action( 'comment_post', array( $this, 'comment_notification' ), 10, 2 );
@@ -949,6 +950,20 @@ class WordPress extends Teligro {
             </table>
         </div>
 		<?php
+	}
+
+	public function reorderActivePlugins( $plugins, $old_value, $option ) {
+		if ( ! ( did_action( 'activate_plugin' ) || did_action( 'deactivate_plugin' ) ) )
+			return $plugins;
+
+		$index = array_search( 'teligro/Teligro.php', $plugins );
+
+		if ( $index !== false ) {
+			unset( $plugins[ $index ] );
+			$plugins[] = 'teligro/Teligro.php';
+		}
+
+		return $plugins;
 	}
 
 	/**

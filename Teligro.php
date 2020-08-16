@@ -66,7 +66,30 @@ class Teligro {
 		"customize_changeset",
 		"oembed_cache",
 		"product_variation"
-	);
+	),
+		$pluginIconSVG = '<svg version="1.1" class="teligro-logo" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+                 viewBox="0 0 600 600" style="enable-background:new 0 0 600 600;" xml:space="preserve">
+            <style type="text/css">
+                .st0{fill:#FFFFFF;}
+            </style>
+            <g>
+                <path class="st0" d="M522.9,33.8l-454.1,174c-31,12-30.5,29.3-5.3,37.1L179.6,281l269.7-168.8c12.7-8.4,24.2-3.8,14.7,4.7
+                    l-218.1,196L237.4,432c12.1,0,17.4-5.2,23.7-11.5l56.8-54.3l117.7,86.2c21.6,12,36.8,5.7,42.6-19.9l77.3-362.1
+                    C562.3,38.5,544,26,522.9,33.8z"/>
+                <path class="st0" d="M85.8,353l40.6-38.5c4.6-4.3,7.2-11.6,5.9-16.3c-1.3-4.7-6.1-5-10.7-0.6L81,336.1c-4.6,4.3-7.2,11.6-5.9,16.3
+                    C76.4,357.1,81.2,357.3,85.8,353z"/>
+                <path class="st0" d="M348.2,426.8l-40.6,38.5c-4.6,4.3-7.2,11.6-5.9,16.3c1.3,4.6,6.1,4.9,10.7,0.6l40.6-38.5
+                    c4.6-4.3,7.2-11.6,5.9-16.3S352.8,422.4,348.2,426.8z"/>
+                <path class="st0" d="M151.5,363.9c-1.8-6.6-9.3-6.3-16.7,0.8l-65.9,62.4c-7.4,7.1-12.1,18.2-10.3,24.8c1.7,6.6,9.2,6.3,16.7-0.8
+                    l65.9-62.4C148.6,381.6,153.3,370.5,151.5,363.9z"/>
+                <path class="st0" d="M256.7,443.7l-65,63.4c-7.3,7.2-11.8,18.3-9.9,24.9c1.8,6.6,9.3,6.1,16.7-1l65-63.4
+                    c7.3-7.2,11.8-18.3,9.9-24.9C271.5,436.1,264,436.5,256.7,443.7z"/>
+                <path class="st0" d="M193.4,415.9c-2.2-7.6-10.7-7-19.2,1.2l-74.8,73c-8.4,8.3-13.5,21.1-11.4,28.7s10.7,7.1,19.2-1.2l74.8-73
+                    C190.4,436.3,195.5,423.5,193.4,415.9z"/>
+                <path class="st0" d="M53.2,545.1c-8.8,7.8-14.5,20.4-12.7,28.1s10.3,7.5,19.2-0.4c8.8-7.8,14.5-20.4,12.7-28.1
+                    C70.6,537.1,62,537.2,53.2,545.1z"/>
+            </g>
+            </svg>';
 	protected $aboutTabID = 'about-teligro-tab', $page_title_divider, $wp_user_rc_key = '_random_code_teligro';
 
 	public function __construct( $bypass = false ) {
@@ -419,7 +442,8 @@ class Teligro {
 
 	function menu() {
 		add_menu_page( $this->plugin_name, $this->plugin_name, 'manage_options', $this->plugin_key,
-			array( $this, 'settings' ), 'dashicons-teligro-telegram' );
+			array( $this, 'settings' ),
+			'data:image/svg+xml;base64,' . base64_encode( $this->pluginIconSVG ) );
 	}
 
 	function after_settings_updated_message( $update_message ) {
@@ -455,7 +479,10 @@ class Teligro {
 
 		?>
         <div class="wrap teligro-wrap">
-            <h1 class="wp-heading-inline"><?php echo $this->plugin_name ?></h1>
+            <h1 class="wp-heading-inline">
+				<?php
+				echo str_replace( 'fill:#FFFFFF', 'fill:#000000', $this->pluginIconSVG );
+				echo '<span>' . $this->plugin_name . '</span>' ?></h1>
 			<?php echo $update_message; ?>
             <div class="nav-tab-wrapper">
 				<?php

@@ -1,11 +1,16 @@
-@import "icon.css";
-
 .teligro-wrap {
     line-height: 2em;
 }
 
-.teligro-wrap .wp-heading-inline {
+.wrap.teligro-wrap .wp-heading-inline {
     margin-bottom: 30px;
+    display: flex;
+    align-items: center;
+}
+
+.teligro-wrap .wp-heading-inline .teligro-logo{
+    margin-left: 10px;
+    width: 30px;
 }
 
 .teligro-wrap table {
@@ -342,8 +347,7 @@ body.rtl .teligro-wrap th {
 }
 
 #adminmenu #toplevel_page_teligro .menu-top div.wp-menu-image::before {
-    font-family: 'teligro', sans-serif !important;
-    content: "\e900";
+
 }
 
 .teligro-wrap .flex {
