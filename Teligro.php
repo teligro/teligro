@@ -124,6 +124,7 @@ class Teligro {
 			add_filter( 'plugin_row_meta', [ $this, 'plugin_row_meta' ], 10, 4 );
 
 			add_filter( 'teligro_settings_update_message', [ $this, 'check_ssl' ], 100 );
+			add_filter( 'teligro_settings_update_message', [ $this, 'checkOldVersion' ], 100 );
 			add_filter( 'teligro_settings_tabs', [ $this, 'settings_tab' ], 100 );
 			add_action( 'teligro_helps_content', [ $this, 'helps_command_list' ], 1 );
 			add_action( 'teligro_settings_content', [ $this, 'about_settings_content' ] );
@@ -163,6 +164,7 @@ class Teligro {
 			'dynamic_code_expired'       => __( 'Dynamic code expired.', $this->plugin_key ),
 			'empty_username_password'    => __( 'Username or password is empty.', $this->plugin_key ),
 			'unknown_error'              => __( 'Unknown error', $this->plugin_key ),
+			'disable_old_version_error'  => __( 'Disable "WP Telegram Pro" plugin, We moved the old data to the new plugin.', $this->plugin_key ),
 		);
 		$words     = array_merge( $words, $new_words );
 
@@ -1120,6 +1122,13 @@ class Teligro {
 
 		// if the request is sent to Telegram by Plugin
 		return $to_telegram && $by_teligro;
+	}
+
+	function checkOldVersion( $message ) {
+		if ( class_exists( 'wptelegrampro\WPTelegramPro' ) )
+			$message .= $this->message( $this->words['disable_old_version_error'], 'error' );
+
+		return $message;
 	}
 
 	function check_ssl( $message ) {

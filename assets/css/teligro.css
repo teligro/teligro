@@ -349,11 +349,6 @@ body.rtl .teligro-wrap th {
     display: inline-block;
 }
 
-#adminmenu #toplevel_page_teligro .menu-top div.wp-menu-image::before {
-    font-family: 'teligro' !important;
-    content: "\e900";
-}
-
 .teligro-wrap .flex {
     display: flex;
     align-items: center;

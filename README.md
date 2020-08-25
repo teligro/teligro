@@ -61,8 +61,12 @@ Development Source:
 Useful Tools:
 * [Json Parser](http://json.parser.online.fr/)
 
-
 Changelog
+-----------
+**1.0**
+* WP Telegram Pro renamed to Teligro
+
+Old Version Changelog ([WP Telegram Pro](https://github.com/wp-telegram-pro/wp-telegram-pro))
 -----------
 **2.1 2020-04-12**
 * Now non-administrator user can receive plugins notification
