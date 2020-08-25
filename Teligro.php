@@ -123,8 +123,8 @@ class Teligro {
 			add_filter( 'plugin_action_links', [ $this, 'plugin_action_links' ], 10, 2 );
 			add_filter( 'plugin_row_meta', [ $this, 'plugin_row_meta' ], 10, 4 );
 
-			add_filter( 'teligro_settings_update_message', [ $this, 'check_ssl' ], 100 );
-			add_filter( 'teligro_settings_update_message', [ $this, 'checkOldVersion' ], 100 );
+			add_filter( 'teligro_settings_update_message', [ $this, 'checkSSL' ], 100 );
+			add_filter( 'teligro_settings_update_message', [ $this, 'checkOldVersionActive' ], 100 );
 			add_filter( 'teligro_settings_tabs', [ $this, 'settings_tab' ], 100 );
 			add_action( 'teligro_helps_content', [ $this, 'helps_command_list' ], 1 );
 			add_action( 'teligro_settings_content', [ $this, 'about_settings_content' ] );
@@ -164,7 +164,8 @@ class Teligro {
 			'dynamic_code_expired'       => __( 'Dynamic code expired.', $this->plugin_key ),
 			'empty_username_password'    => __( 'Username or password is empty.', $this->plugin_key ),
 			'unknown_error'              => __( 'Unknown error', $this->plugin_key ),
-			'disable_old_version_error'  => __( 'Disable "WP Telegram Pro" plugin, We moved the old data to the new plugin.', $this->plugin_key ),
+			'disable_old_version_error'  => __( 'Disable "WP Telegram Pro" plugin, We moved the old data to the current plugin.',
+				$this->plugin_key ),
 		);
 		$words     = array_merge( $words, $new_words );
 
@@ -1124,16 +1125,16 @@ class Teligro {
 		return $to_telegram && $by_teligro;
 	}
 
-	function checkOldVersion( $message ) {
+	function checkOldVersionActive( $message ) {
 		if ( class_exists( 'wptelegrampro\WPTelegramPro' ) )
-			$message .= $this->message( $this->words['disable_old_version_error'], 'error' );
+			$message .= $this->message( $this->words['disable_old_version_error'], 'notice-warning' );
 
 		return $message;
 	}
 
-	function check_ssl( $message ) {
+	function checkSSL( $message ) {
 		if ( ! is_ssl() )
-			$message .= $this->message( $this->words['ssl_error'], 'error' );
+			$message .= $this->message( $this->words['ssl_error'], 'error', false );
 
 		return $message;
 	}
