@@ -25,7 +25,7 @@ class Telegram {
 	function __construct( $token ) {
 		$this->token = $token;
 		add_filter( 'teligro_api_request_parameters', [ $this, 'request_file_parameter' ] );
-		add_action( 'http_api_curl', [ $this, 'modify_http_api_curl' ], 10, 3 );
+		add_action( 'http_api_curl', [ $this, 'modify_http_api_curl' ], 99999, 3 );
 	}
 
 	function input() {
@@ -34,6 +34,7 @@ class Telegram {
 			$data = json_decode( $input, true );
 			if ( json_last_error() !== JSON_ERROR_NONE || ! isset( $data['update_id'] ) )
 				throw new \Exception( 'Json With Error!' );
+
 			$return               = array();
 			$return['input']      = $data;
 			$return['text']       = $data['message']['text'];
@@ -65,75 +66,51 @@ class Telegram {
 		$parameter = apply_filters( 'teligro_telegram_bot_api_parameters', $parameter );
 		$url       = apply_filters( 'teligro_api_request_url', $url );
 
-		if ( ! empty( $proxy_status ) ) {
-			$headers = array( 'teligro' => true, 'Content-Type' => 'application/json' );
+		$headers = array( 'teligro' => true, 'Content-Type' => 'application/json' );
 
-			if ( in_array( $method, $this->fileMethod ) && isset( $parameter['file'] ) ) {
-				$key = $this->file_key = strtolower( str_replace( array( 'send', 'VideoNote' ),
-					array( '', 'video_note' ), $method ) );
+		if ( in_array( $method, $this->fileMethod ) && isset( $parameter['file'] ) ) {
+			$key = $this->file_key = strtolower( str_replace( array( 'send', 'VideoNote' ),
+				array( '', 'video_note' ), $method ) );
 
-				if ( filter_var( $parameter['file'], FILTER_VALIDATE_URL ) ) { // is url
-					$parameter[ $key ] = $parameter['file'];
-					remove_action( 'http_api_curl', [ $this, 'modify_http_api_curl' ] );
-
-				} else {
-					$parameter[ $key ]       = $this->file = $parameter['file'];
-					$headers['attache_file'] = true;
-					add_action( 'http_api_curl', [ $this, 'modify_http_api_curl' ], 99999, 3 );
-				}
-				unset( $parameter['file'] );
+			if ( filter_var( $parameter['file'], FILTER_VALIDATE_URL ) ) { // is url
+				$parameter[ $key ] = $parameter['file'];
+				remove_action( 'http_api_curl', [ $this, 'modify_http_api_curl' ], 99999 );
 			} else {
-				remove_action( 'http_api_curl', [ $this, 'modify_http_api_curl' ] );
+				$parameter[ $key ]       = $this->file = $parameter['file'];
+				$headers['attache_file'] = true;
+				add_action( 'http_api_curl', [ $this, 'modify_http_api_curl' ], 99999, 3 );
 			}
-
-			// $parameter = apply_filters('teligro_api_request_parameters', $parameter);
-			$parameter = $this->request_file_parameter( $parameter );
-
-			$args = array(
-				'timeout'   => 30, //seconds
-				'blocking'  => true,
-				'headers'   => $headers,
-				'body'      => $parameter,
-				'sslverify' => true,
-			);
-
-			foreach ( $args as $argument => $value ) {
-				$args[ $argument ] = apply_filters( "teligro_api_request_arg_{$argument}", $value );
-			}
-
-			$args         = apply_filters( 'teligro_api_remote_post_args', $args, $method, $this->token );
-			$raw_response = $this->raw_response = $this->last_result = wp_remote_post( $url, $args );
-			$this->set_properties( $raw_response );
-			$this->valid_json = $this->decode_body();
-			$result           = $this->get_decoded_body();
-
+			unset( $parameter['file'] );
 		} else {
-			if ( empty( $this->token ) || ! function_exists( 'curl_init' ) )
-				return false;
-
-			$ch = curl_init();
-			if ( in_array( $method, $this->fileMethod ) && isset( $parameter['file'] ) ) {
-				$key = strtolower( str_replace( array( 'send', 'VideoNote' ), array( '', 'video_note' ), $method ) );
-				if ( filter_var( $parameter['file'], FILTER_VALIDATE_URL ) ) {
-					$parameter[ $key ] = $parameter['file'];
-				} else {
-					$parameter[ $key ] = new \CURLFile( realpath( $parameter['file'] ) );
-					curl_setopt( $ch, CURLOPT_HTTPHEADER, array(
-						"Content-Type: multipart/form-data"
-					) );
-				}
-			}
-
-			curl_setopt( $ch, CURLOPT_URL, $url );
-			curl_setopt( $ch, CURLOPT_RETURNTRANSFER, true );
-			if ( count( $parameter ) )
-				curl_setopt( $ch, CURLOPT_POSTFIELDS, $parameter );
-			$this->last_result = $this->body = curl_exec( $ch );
-			$this->valid_json  = $this->decode_body();
-			$result            = $this->get_decoded_body();
+			remove_action( 'http_api_curl', [ $this, 'modify_http_api_curl' ], 99999 );
 		}
 
-		return $result;
+		// $parameter = apply_filters('teligro_api_request_parameters', $parameter);
+		$parameter = $this->request_file_parameter( $parameter );
+		$body      = empty( $proxy_status ) ? wp_json_encode( $parameter ) : $parameter;
+
+		$args = array(
+			'method'      => 'POST',
+			'timeout'     => 30, //seconds
+			'httpversion' => '1.0',
+			'blocking'    => true,
+			'headers'     => $headers,
+			'body'        => $body,
+			'data_format' => 'body',
+			'sslverify'   => true
+		);
+
+		foreach ( $args as $argument => $value ) {
+			$args[ $argument ] = apply_filters( "teligro_api_request_arg_{$argument}", $value );
+		}
+
+		$args = apply_filters( 'teligro_api_remote_post_args', $args, $method, $this->token );
+
+		$raw_response = $this->raw_response = $this->last_result = wp_remote_post( $url, $args );
+		$this->set_properties( $raw_response );
+		$this->valid_json = $this->decode_body();
+
+		return $this->get_decoded_body();
 	}
 
 	public function set_token( $token ) {
@@ -141,7 +118,7 @@ class Telegram {
 	}
 
 	function request_file_parameter( $parameter ) {
-		$image_send_mode = apply_filters( 'teligro_image_send_mode', 'image_path' );
+		$image_send_mode = apply_filters( 'teligro_image_send_mode', 'image' );
 		if ( $this->file && $image_send_mode === 'image_path' ) {
 			$parameter[ $this->file_key ] = new \CURLFile( realpath( $this->file ) );
 		}
@@ -150,10 +127,11 @@ class Telegram {
 	}
 
 	function modify_http_api_curl( &$handle, $r, $url ) {
-		$image_send_mode = apply_filters( 'teligro_image_send_mode', 'image_path' );
+		global $Teligro;
+		$image_send_mode = apply_filters( 'teligro_image_send_mode', 'image' );
 		if ( ! isset( $r['headers']['attache_file'] ) || $image_send_mode !== 'image_path' )
 			return;
-		if ( $this->check_remote_post( $r, $url ) ) {
+		if ( $Teligro->check_remote_post( $r, $url ) ) {
 			curl_setopt( $handle, CURLOPT_HTTPHEADER, array( "Content-Type:multipart/form-data" ) );
 		}
 	}

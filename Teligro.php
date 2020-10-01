@@ -265,7 +265,7 @@ class Teligro {
 		if ( isset( $_GET['user-disconnect-teligro'] ) ) {
 			if ( $user_id == null )
 				$user_id = get_current_user_id();
-			$nonce  = $_GET['user-disconnect-teligro'];
+			$nonce  = sanitize_text_field( $_GET['user-disconnect-teligro'] );
 			$action = date( "dH" ) . $user_id;
 			if ( wp_verify_nonce( $nonce, $action ) ) {
 				$bot_user = $this->set_user( array( 'wp_id' => $user_id ) );
@@ -351,32 +351,40 @@ class Teligro {
 		$this->check_user_id( $user->ID );
 	}
 
-	function check_user_id( $user_id = null, $teligrourid = null ) {
-		if ( $user_id == 0 )
-			return $user_id;
+	/**
+	 * Check User ID
+	 *
+	 * @param  integer  $user_id  WordPress User ID
+	 * @param  integer  $teligroUserID  Teligro Rand ID
+	 *
+	 * @return void|integer
+	 **/
+	function check_user_id( $userID = null, $teligroUserID = null ) {
+		if ( $userID == 0 )
+			return $userID;
 
-		if ( $teligrourid == null && isset( $_COOKIE['teligrourid'] ) )
-			$teligrourid = $_COOKIE['teligrourid'];
+		if ( $teligroUserID == null && isset( $_COOKIE['teligro-user-id'] ) )
+			$teligroUserID = sanitize_text_field( $_COOKIE['teligro-user-id'] );
 
-		if ( $teligrourid == null || strlen( $teligrourid ) != $this->rand_id_length )
-			return $user_id;
+		if ( $teligroUserID == null || strlen( $teligroUserID ) != $this->rand_id_length )
+			return $userID;
 
-		if ( is_user_logged_in() && $user_id === null )
-			$user_id = get_current_user_id();
+		if ( is_user_logged_in() && $userID === null )
+			$userID = get_current_user_id();
 
-		$user = $this->set_user( array( 'rand_id' => $teligrourid ) );
+		$user = $this->set_user( array( 'rand_id' => $teligroUserID ) );
 		if ( $user === null || ! empty( $user['wp_id'] ) )
-			return $user_id;
+			return $userID;
 
 		do_action( 'teligro_before_telegram_connectivity_success_connect' );
-		$this->update_user( array( 'wp_id' => $user_id ) );
+		$this->update_user( array( 'wp_id' => $userID ) );
 		$default_keyboard        = apply_filters( 'teligro_default_keyboard', array() );
 		$default_keyboard        = $this->telegram->keyboard( $default_keyboard );
 		$success_connect_message = $this->get_option( 'telegram_connectivity_success_connect_message',
 			$this->words['profile_success_connect'] );
 		$this->telegram->sendMessage( $success_connect_message, $default_keyboard, $user['user_id'] );
-		setcookie( 'teligrourid', null, - 1 );
-		unset( $_COOKIE['teligrourid'] );
+		setcookie( 'teligro-user-id', null, - 1 );
+		unset( $_COOKIE['teligro-user-id'] );
 		do_action( 'teligro_after_telegram_connectivity_success_connect' );
 
 		if ( $GLOBALS['pagenow'] === 'wp-login.php' )
@@ -1119,7 +1127,7 @@ class Teligro {
 		$user_link   = 'https://t.me/';
 		$pattern     = '/^(?:' . preg_quote( $bot_api_url, '/' ) . '|' . preg_quote( $user_link, '/' ) . ')/i';
 		$to_telegram = preg_match( $pattern, $url );
-		$by_teligro  = ( isset( $r['headers']['teligro'] ) && $r['headers']['teligro'] );
+		$by_teligro  = isset( $r['headers']['teligro'] ) && $r['headers']['teligro'];
 
 		// if the request is sent to Telegram by Plugin
 		return $to_telegram && $by_teligro;

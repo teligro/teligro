@@ -658,7 +658,7 @@ class WooCommerce extends Teligro {
 			$this->select_product_variation( $product, $button_data['5'], $button_data['6'], $button_data['7'],
 				$button_data['4'], $taxonomy );
 		} elseif ( $this->button_data_check( $button_data, 'image_galleries' ) ) {
-			$image_send_mode = apply_filters( 'teligro_image_send_mode', 'image_path' );
+			$image_send_mode = apply_filters( 'teligro_image_send_mode', 'image' );
 			$product_id      = intval( end( $btnData ) );
 			if ( get_post_status( $product_id ) === 'publish' ) {
 				$image_size = $this->get_option( 'image_size' );
@@ -1254,7 +1254,7 @@ class WooCommerce extends Teligro {
 
 	function send_products( $products ) {
 		if ( count( $products['product'] ) ) {
-			$image_send_mode = apply_filters( 'teligro_image_send_mode', 'image_path' );
+			$image_send_mode = apply_filters( 'teligro_image_send_mode', 'image' );
 
 			$this->words  = apply_filters( 'teligro_words', $this->words );
 			$keyboard     = $this->default_products_keyboard;
@@ -1292,7 +1292,7 @@ class WooCommerce extends Teligro {
 	}
 
 	function send_product( $product ) {
-		$image_send_mode = apply_filters( 'teligro_image_send_mode', 'image_path' );
+		$image_send_mode = apply_filters( 'teligro_image_send_mode', 'image' );
 		$price           = $this->product_price( $product );
 		$add_info        = '';
 		$metas           = array();
@@ -1434,14 +1434,14 @@ class WooCommerce extends Teligro {
 	function cart_url() {
 		$url = wc_get_cart_url();
 		$url .= strpos( $url, '?' ) === false ? '?' : '&';
-		$url .= 'teligrourid=' . $this->user_field( 'rand_id' );
+		$url .= 'teligro-user-id=' . $this->user_field( 'rand_id' );
 
 		return $url;
 	}
 
 	function cart_init() {
-		if ( is_cart() && ! is_ajax() && isset( $_GET['teligrourid'] ) && is_numeric( $_GET['teligrourid'] ) && function_exists( 'wc' ) ) {
-			$user = $this->set_user( array( 'rand_id' => $_GET['teligrourid'] ) );
+		if ( is_cart() && ! is_ajax() && isset( $_GET['teligro-user-id'] ) && is_numeric( $_GET['teligro-user-id'] ) && function_exists( 'wc' ) ) {
+			$user = $this->set_user( array( 'rand_id' => sanitize_text_field( $_GET['teligro-user-id'] ) ) );
 			if ( $user === null )
 				return;
 

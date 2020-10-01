@@ -50,14 +50,12 @@ class Proxy extends Teligro {
 				add_filter( 'teligro_api_remote_post_args', [ $this, 'script_request_args' ], 10, 3 );
 				add_filter( 'teligro_api_request_url', [ $this, 'google_script_request_url' ] );
 			}
-
 		} elseif ( $proxy_status === 'php_tunnel' ) {
 			$php_tunnel_script_url = $this->get_option( 'php_tunnel_script_url' );
 			if ( ! empty( $php_tunnel_script_url ) ) {
 				add_filter( 'teligro_api_remote_post_args', [ $this, 'script_request_args' ], 10, 3 );
 				add_filter( 'teligro_api_request_url', [ $this, 'phpTunnelRequestURL' ] );
 			}
-
 		} elseif ( $proxy_status === 'php_proxy' )
 			$this->setup_php_proxy();
 	}
@@ -91,7 +89,6 @@ class Proxy extends Teligro {
 			if ( $new_options['proxy_status'] === 'php_tunnel' ) {
 				add_filter( 'teligro_api_remote_post_args', [ $this, 'script_request_args' ], 10, 3 );
 				add_filter( 'teligro_api_request_url', [ $this, 'phpTunnelRequestURL' ] );
-
 			} else {
 				remove_action( 'teligro_api_remote_post_args', [ $this, 'script_request_args' ] );
 				remove_action( 'teligro_api_request_url', [ $this, 'phpTunnelRequestURL' ] );
@@ -100,7 +97,7 @@ class Proxy extends Teligro {
 			}
 
 			$telegram = new Telegram( $new_options['api_token'] );
-			$webHook  = $this->webHookURL( false ); 
+			$webHook  = $this->webHookURL( false );
 
 			if ( $new_options['proxy_status'] === 'php_tunnel' && ! empty( $new_options['php_tunnel_script_url'] ) ) {
 				$webHook = apply_filters( 'teligro_set_webhook', $webHook );

@@ -47,17 +47,18 @@ class WordPress extends Teligro {
 	function login_url() {
 		$url = wp_login_url();
 		$url .= strpos( $url, '?' ) === false ? '?' : '&';
-		$url .= 'teligrourid=' . $this->user_field( 'rand_id' );
+		$url .= 'teligro-user-id=' . $this->user_field( 'rand_id' );
 
 		return $url;
 	}
 
 	function user_init() {
-		if ( isset( $_GET['teligrourid'] ) && is_numeric( $_GET['teligrourid'] ) ) {
+		if ( isset( $_GET['teligro-user-id'] ) && is_numeric( $_GET['teligro-user-id'] ) ) {
 			if ( is_user_logged_in() ) {
-				$this->check_user_id( get_current_user_id(), $_GET['teligrourid'] );
+				$this->check_user_id( get_current_user_id(), sanitize_text_field( $_GET['teligro-user-id'] ) );
 			} else {
-				setcookie( 'teligrourid', $_GET['teligrourid'], current_time( 'U' ) + ( 60 * 60 * 12 * 7 ) );
+				setcookie( 'teligro-user-id', sanitize_text_field( $_GET['teligro-user-id'] ),
+					current_time( 'U' ) + ( 60 * 60 * 12 * 7 ) );
 			}
 		}
 	}
@@ -540,7 +541,7 @@ class WordPress extends Teligro {
 		if ( ! is_array( $posts['parameter']['post_type'] ) )
 			$posts['parameter']['post_type'] = array( $posts['parameter']['post_type'] );
 
-		$image_send_mode = apply_filters( 'teligro_image_send_mode', 'image_path' );
+		$image_send_mode = apply_filters( 'teligro_image_send_mode', 'image' );
 
 		$posts_ = array();
 		foreach ( $posts['parameter']['post_type'] as $post_type ) {
