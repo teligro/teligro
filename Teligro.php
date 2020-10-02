@@ -469,9 +469,9 @@ class Teligro {
 
 		$update_message = apply_filters( 'teligro_settings_update_message', '' );
 
-		if ( isset( $_POST['wpt_nonce_field'] ) && wp_verify_nonce( $_POST['wpt_nonce_field'], 'settings_submit' ) ) {
-			unset( $_POST['wpt_nonce_field'] );
-			unset( $_POST['_wp_http_referer'] );
+		if ( isset( $_POST['teligro_nonce_field'] ) && wp_verify_nonce( $_POST['teligro_nonce_field'],
+				'settings_submit' ) ) {
+			unset( $_POST['teligro_nonce_field'] );
 
 			do_action( 'teligro_before_settings_updated', $this->options, $_POST );
 			$update_message = apply_filters( 'teligro_before_settings_update_message', $update_message,
@@ -505,7 +505,7 @@ class Teligro {
 				?>
             </div>
             <form action="" method="post">
-				<?php wp_nonce_field( 'settings_submit', 'wpt_nonce_field' );
+				<?php wp_nonce_field( 'settings_submit', 'teligro_nonce_field', false );
 				do_action( 'teligro_settings_content' );
 				?>
 
