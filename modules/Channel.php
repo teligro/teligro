@@ -170,8 +170,8 @@ class Channel extends Teligro {
 		if ( ! $this->check_metabox_display() || ! $this->get_option( 'quick_send_to_channel', false ) )
 			return;
 		$channel_username = sanitize_text_field( $_POST['channel_username'] );
-		$channel_index    = intval( sanitize_text_field( $_POST['channel_index'] ) );
-		$post_id          = intval( sanitize_text_field( $_POST['post_id'] ) );
+		$channel_index    = intval( $_POST['channel_index'] );
+		$post_id          = intval( $_POST['post_id'] );
 		$result           = $this->send_to_channel( $post_id, $channel_username, $channel_index );
 		$result           = array( 'success' => isset( $result['ok'] ) && $result['ok'] );
 		wp_send_json( $result );
@@ -357,27 +357,27 @@ class Channel extends Teligro {
 
 		if ( $display_metabox ) {
 			if ( ! isset( $_POST['teligro-nonce'] ) )
-				return $post_id;
+				return;
 			if ( ! isset( $_POST["teligro-nonce"] ) || ! wp_verify_nonce( $_POST["teligro-nonce"],
 					basename( __FILE__ ) ) )
-				return $post_id;
+				return;
 		}
 
 		if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE )
-			return $post_id;
+			return;
 		if ( false !== wp_is_post_revision( $post_id ) )
-			return $post_id;
+			return;
 		if ( isset( $_POST['post_type'] ) && 'page' == $_POST['post_type'] ) {
 			if ( ! current_user_can( 'edit_page', $post_id ) )
-				return $post_id;
+				return;
 		} elseif ( ! current_user_can( 'edit_post', $post_id ) )
-			return $post_id;
-		if ( ! in_array( get_post_status( $post_id ), array( 'publish', 'draft' ) ) )
-			return $post_id;
+			return;
+		if ( ! in_array( get_post_status( $post_id ), array( 'publish', 'draft', 'future' ) ) )
+			return;
 		if ( strpos( $post->post_name, 'autosave' ) !== false )
-			return $post_id;
+			return;
 		if ( strpos( $post->post_name, 'revision' ) !== false )
-			return $post_id;
+			return;
 
 		$options   = $this->options;
 		$post_type = $post->post_type;
@@ -401,8 +401,8 @@ class Channel extends Teligro {
 					delete_post_meta( $post_id,
 						'_channel_message_pattern_' . $options['channel_username'][ $k ] . '_teligro' );
 
-				$send_to_channel = $_POST['send_to_channel'][ $options['channel_username'][ $k ] ];
-				$featured_image  = $_POST['channel_with_featured_image'][ $options['channel_username'][ $k ] ];
+				$send_to_channel = sanitize_text_field( $_POST['send_to_channel'][ $options['channel_username'][ $k ] ] );
+				$featured_image  = intval( $_POST['channel_with_featured_image'][ $options['channel_username'][ $k ] ] );
 			} else {
 				$send_to_channel = isset( $options['send_to_channel'][ $k ] ) ? 1 : 2;
 				$featured_image  = isset( $options['channel_with_featured_image'][ $k ] ) ? 1 : 2;
@@ -413,8 +413,6 @@ class Channel extends Teligro {
 			update_post_meta( $post_id, '_featured_image_' . $options['channel_username'][ $k ] . '_teligro',
 				$featured_image );
 		}
-
-		return $post_id;
 	}
 
 	function register_meta_boxes( $post_type ) {
