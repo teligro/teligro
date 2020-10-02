@@ -582,7 +582,7 @@ class Channel extends Teligro {
 	}
 
 	function channel_members_count() {
-		$channel_username = $_POST['channel_username'];
+		$channel_username = sanitize_text_field( $_POST['channel_username'] );
 		$channel          = $this->telegram->get_members_count( '@' . $channel_username );
 		$channel_member   = $this->telegram->get_last_result();
 		if ( $channel && $channel_member['ok'] && isset( $channel_member['result'] ) ) {
