@@ -1291,7 +1291,8 @@ class Teligro {
                    PRIMARY KEY (`id`),
                    UNIQUE KEY `rand_id` (`rand_id`)
                 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;";
-			require_once( ABSPATH . '/wp-admin/includes/upgrade.php' );
+			require_once( ABSPATH .
+			              str_replace( '/', DIRECTORY_SEPARATOR, '/wp-admin/includes/upgrade.php' ) );
 			dbDelta( $sql );
 		}
 
@@ -1307,7 +1308,8 @@ class Teligro {
 		if ( $wpdb->get_var( "show tables like '$newTable'" ) != $newTable && $wpdb->get_var( "show tables like '$oldTable'" ) == $oldTable ) {
 			$sql = "CREATE TABLE IF NOT EXISTS {$newTable} SELECT * FROM {$oldTable}";
 
-			require_once( ABSPATH . '/wp-admin/includes/upgrade.php' );
+			require_once( ABSPATH .
+			              str_replace( '/', DIRECTORY_SEPARATOR, '/wp-admin/includes/upgrade.php' ) );
 			dbDelta( $sql );
 
 			// Update Options

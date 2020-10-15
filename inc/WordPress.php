@@ -42,6 +42,9 @@ class WordPress extends Teligro {
 			add_filter( 'recovery_mode_email', [ $this, 'admin_recovery_mode_notification' ], 1000, 2 );
 		if ( $this->get_option( 'admin_auto_core_update_notification', false ) )
 			add_filter( 'auto_core_update_email', [ $this, 'admin_auto_core_update_notification' ], 1000, 4 );
+		if ( $this->get_option( 'admin_auto_plugin_theme_update_notification', false ) )
+			add_filter( 'auto_plugin_theme_update_email', [ $this, 'admin_auto_plugin_theme_update_notification' ],
+				1000, 4 );
 	}
 
 	function login_url() {
@@ -362,7 +365,7 @@ class WordPress extends Teligro {
 	}
 
 	/**
-	 * Send notification to admin users when auto core update
+	 * Send notification to admin users when auto core updated
 	 *
 	 * @param  array  $email  (to, subject, body, headers)
 	 * @param  string  $type  The type of email being sent. Can be one of
@@ -376,6 +379,35 @@ class WordPress extends Teligro {
 		$text = $email['body'];
 		$text = apply_filters( 'teligro_admin_auto_core_update_notification_text', $text, $email, $type,
 			$core_update, $result );
+
+		if ( ! $text )
+			return $email;
+
+		$users = $this->get_users();
+		if ( $users ) {
+			$this->telegram->disable_web_page_preview( true );
+			foreach ( $users as $user ) {
+				$this->telegram->sendMessage( $text, null, $user['user_id'] );
+			}
+		}
+
+		return $email;
+	}
+
+	/**
+	 * Send notification to admin users when auto plugins/themes updated
+	 *
+	 * @param  array  $email  Array of email arguments that will be passed to wp_mail().
+	 * @param  string  $type  The type of email being sent. Can be one of 'success', 'fail', 'mixed'.
+	 * @param  array  $successful_updates  A list of updates that succeeded.
+	 * @param  array  $failed_updates  A list of updates that failed.
+	 *
+	 * @return  array
+	 */
+	function admin_auto_plugin_theme_update_notification( $email, $type, $successful_updates, $failed_updates ) {
+		$text = $email['body'];
+		$text = apply_filters( 'teligro_admin_auto_plugin_theme_update_notification_text', $text, $email, $type,
+			$successful_updates, $failed_updates );
 
 		if ( ! $text )
 			return $email;
@@ -871,6 +903,10 @@ class WordPress extends Teligro {
                         <label><input type="checkbox" value="1" id="admin_auto_core_update_notification"
                                       name="admin_auto_core_update_notification" <?php checked( $this->get_option( 'admin_auto_core_update_notification' ),
 								1 ) ?>> <?php _e( 'Auto core update', $this->plugin_key ) ?>
+                        </label><br>
+                        <label><input type="checkbox" value="1" id="admin_auto_plugin_theme_update_notification"
+                                      name="admin_auto_plugin_theme_update_notification" <?php checked( $this->get_option( 'admin_auto_plugin_theme_update_notification' ),
+								1 ) ?>> <?php _e( 'Auto plugins/themes update', $this->plugin_key ) ?>
                         </label><br>
                         <label><input type="checkbox" value="1" id="new_comment_notification"
                                       name="new_comment_notification" <?php checked( $this->get_option( 'new_comment_notification' ),

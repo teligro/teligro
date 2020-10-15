@@ -50,7 +50,7 @@ jQuery(function ($) {
     var reload_check = false;
     var publish_button_click = false;
     jQuery(document).ready(function ($) {
-        if ($('.teligro-metabox').length > 0)
+        /*if ($('.teligro-metabox').length > 0)
             add_publish_button_click = setInterval(function () {
                 $publish_button = jQuery('.edit-post-header__settings .editor-post-publish-button');
                 if ($publish_button && !publish_button_click) {
@@ -72,7 +72,7 @@ jQuery(function ($) {
                         }, 1000);
                     });
                 }
-            }, 1000);
+            }, 1000);*/
 
         $('#proxy-teligro-tab-content input[type=radio][name=proxy_status]').unbind('change').change(function () {
             $('.proxy-status-teligro').hide();

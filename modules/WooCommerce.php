@@ -2,6 +2,10 @@
 
 namespace teligro;
 
+use WC_Order;
+use WC_Product;
+use WP_Comment;
+
 if ( ! defined( 'ABSPATH' ) )
 	exit;
 
@@ -120,6 +124,13 @@ class WooCommerce extends Teligro {
 	public function admin_order_status_notification( $order_id, $old_status, $new_status, $order ) {
 		$users = $this->get_users( [ 'Administrator', 'shop_manager' ] );
 		if ( $users ) {
+			$orderNumber = $order_id;
+
+			// Integrate with 'WooCommerce Sequential Order Numbers' plugin
+			$order = new WC_Order( $order_id );
+			if ( $sequential_order_number = $order->get_meta( '_order_number', true, 'edit' ) )
+				$orderNumber = $sequential_order_number;
+
 			$keyboard  = array(
 				array(
 					array(
@@ -135,7 +146,7 @@ class WooCommerce extends Teligro {
 			$keyboards = $this->telegram->keyboard( $keyboard, 'inline_keyboard' );
 
 			$text = "*" . __( 'Order status changed', $this->plugin_key ) . "*\n\n";
-			$text .= __( 'Order number', $this->plugin_key ) . ': ' . $order_id . "\n";
+			$text .= __( 'Order number', $this->plugin_key ) . ': ' . $orderNumber . "\n";
 			$text .= __( 'Old status', $this->plugin_key ) . ': ' . wc_get_order_status_name( $old_status ) . "\n";
 			$text .= __( 'New status', $this->plugin_key ) . ': ' . wc_get_order_status_name( $new_status ) . "\n";
 			$text .= __( 'Date',
@@ -162,6 +173,13 @@ class WooCommerce extends Teligro {
 		if ( $user_id ) {
 			$user = $this->set_user( array( 'wp_id' => $user_id ) );
 			if ( $user ) {
+				$orderNumber = $order_id;
+
+				// Integrate with 'WooCommerce Sequential Order Numbers' plugin
+				$order = new WC_Order( $order_id );
+				if ( $sequential_order_number = $order->get_meta( '_order_number', true, 'edit' ) )
+					$orderNumber = $sequential_order_number;
+
 				$orders_endpoint = get_option( 'woocommerce_myaccount_orders_endpoint', 'orders' );
 				if ( ! empty( $orders_endpoint ) ) {
 					$keyboard  = array(
@@ -182,7 +200,7 @@ class WooCommerce extends Teligro {
 				}
 
 				$text = "*" . __( 'Order status changed', $this->plugin_key ) . "*\n\n";
-				$text .= __( 'Order number', $this->plugin_key ) . ': ' . $order_id . "\n";
+				$text .= __( 'Order number', $this->plugin_key ) . ': ' . $orderNumber . "\n";
 				$text .= __( 'New status', $this->plugin_key ) . ': ' . wc_get_order_status_name( $new_status ) . "\n";
 				$text .= __( 'Date',
 						$this->plugin_key ) . ': ' . Helpers::localeDate( $order->get_date_modified() ) . "\n";
@@ -204,8 +222,13 @@ class WooCommerce extends Teligro {
 		if ( $comment->comment_type != 'order_note' )
 			return;
 
-		$content  = $comment->comment_content;
-		$order_id = intval( $comment->comment_post_ID );
+		$content  = wp_strip_all_tags( $comment->comment_content );
+		$order_id = $orderNumber = intval( $comment->comment_post_ID );
+
+		// Integrate with 'WooCommerce Sequential Order Numbers' plugin
+		$order = new WC_Order( $order_id );
+		if ( $sequential_order_number = $order->get_meta( '_order_number', true, 'edit' ) )
+			$orderNumber = $sequential_order_number;
 
 		$users = $this->get_users( [ 'Administrator', 'shop_manager' ] );
 		if ( $users ) {
@@ -224,7 +247,7 @@ class WooCommerce extends Teligro {
 			$keyboards = $this->telegram->keyboard( $keyboard, 'inline_keyboard' );
 
 			$text = "*" . __( 'New order note', $this->plugin_key ) . "*\n\n";
-			$text .= __( 'Order number', $this->plugin_key ) . ': ' . $order_id . "\n";
+			$text .= __( 'Order number', $this->plugin_key ) . ': ' . $orderNumber . "\n";
 			$text .= __( 'Note', $this->plugin_key ) . ': ' . "\n" . $content . "\n";
 			$text .= __( 'Date', $this->plugin_key ) . ': ' . Helpers::localeDate() . "\n";
 
@@ -252,6 +275,12 @@ class WooCommerce extends Teligro {
 		if ( $user_id ) {
 			$user = $this->set_user( array( 'wp_id' => $user_id ) );
 			if ( $user ) {
+				$orderNumber = $order_id;
+
+				// Integrate with 'WooCommerce Sequential Order Numbers' plugin
+				if ( $sequential_order_number = $order->get_meta( '_order_number', true, 'edit' ) )
+					$orderNumber = $sequential_order_number;
+
 				$customer_order_notes = $order->get_customer_order_notes();
 				$customer_order_note  = current( $customer_order_notes );
 				$commentID            = intval( $customer_order_note->comment_ID );
@@ -276,7 +305,7 @@ class WooCommerce extends Teligro {
 				}
 
 				$text = "*" . __( 'New order note', $this->plugin_key ) . "*\n\n";
-				$text .= __( 'Order number', $this->plugin_key ) . ': ' . $order_id . "\n";
+				$text .= __( 'Order number', $this->plugin_key ) . ': ' . $orderNumber . "\n";
 				$text .= __( 'Note', $this->plugin_key ) . ': ' . "\n" . $customer_note . "\n";
 				$text .= __( 'Date', $this->plugin_key ) . ': ' . Helpers::localeDate() . "\n";
 				$text = apply_filters( 'teligro_wc_user_order_note_customer_notification_text', $text,
@@ -336,6 +365,13 @@ class WooCommerce extends Teligro {
 		$users = $this->get_users( [ 'Administrator', 'shop_manager' ] );
 		if ( $users ) {
 			$order     = wc_get_order( $order_id );
+
+			$orderNumber = $order_id;
+
+			// Integrate with 'WooCommerce Sequential Order Numbers' plugin
+			if ( $sequential_order_number = $order->get_meta( '_order_number', true, 'edit' ) )
+				$orderNumber = $sequential_order_number;
+
 			$keyboard  = array(
 				array(
 					array(
@@ -351,7 +387,7 @@ class WooCommerce extends Teligro {
 			$keyboards = $this->telegram->keyboard( $keyboard, 'inline_keyboard' );
 
 			$text = "*" . __( 'New Order', $this->plugin_key ) . "*\n\n";
-			$text .= __( 'Order number', $this->plugin_key ) . ': ' . $order_id . "\n";
+			$text .= __( 'Order number', $this->plugin_key ) . ': ' . $orderNumber . "\n";
 			$text .= __( 'Status', $this->plugin_key ) . ': ' . wc_get_order_status_name( $order->get_status() ) . "\n";
 			$text .= __( 'Date',
 					$this->plugin_key ) . ': ' . Helpers::localeDate( $order->get_date_modified() ) . "\n";
@@ -500,7 +536,7 @@ class WooCommerce extends Teligro {
 			if ( $variations )
 				$product_variation_id = $variations[0]->ID;
 
-			$_product      = new \WC_Product( $product_id );
+			$_product      = new WC_Product( $product_id );
 			$product_type_ = get_the_terms( $product_id, 'product_type' );
 			if ( $product_type_ )
 				$product_type = $product_type_[0]->slug;
@@ -642,14 +678,16 @@ class WooCommerce extends Teligro {
 		$btnData = explode( '_', $button_data );
 
 		if ( $this->button_data_check( $button_data, 'product_variation_back' ) ) {
-			$product   = $this->query( array( 'p' => $button_data['3'], 'post_type' => 'product' ) );
-			$keyboard  = $this->product_keyboard( $product, $button_data['4'] );
+			$product   = $this->query( array( 'p' => $btnData['3'], 'post_type' => 'product' ) );
+			$keyboard  = $this->product_keyboard( $product, $btnData['4'] );
 			$keyboards = $this->telegram->keyboard( $keyboard, 'inline_keyboard' );
-			$this->telegram->editMessageReplyMarkup( $keyboards, $button_data['4'] );
+			$this->telegram->editMessageReplyMarkup( $keyboards, $btnData['4'] );
+
 		} elseif ( $this->button_data_check( $button_data, 'product_variation_header' ) ) {
-			$this->telegram->answerCallbackQuery( $button_data['5'] );
-			$product = $this->query( array( 'p' => $button_data['3'], 'post_type' => 'product' ) );
-			$this->product_keyboard_variations( $product, $button_data['5'], $button_data['4'] );
+			$this->telegram->answerCallbackQuery( $btnData['5'] );
+			$product = $this->query( array( 'p' => $btnData['3'], 'post_type' => 'product' ) );
+			$this->product_keyboard_variations( $product, $btnData['5'], $btnData['4'] );
+
 		} elseif ( $this->button_data_check( $button_data, 'select_product_variation' ) ) {
 			$button_data_ = explode( '||', $button_data );
 			$button_data  = explode( '_', $button_data_[0] );
@@ -657,14 +695,16 @@ class WooCommerce extends Teligro {
 			$product      = $this->query( array( 'p' => $button_data['3'], 'post_type' => 'product' ) );
 			$this->select_product_variation( $product, $button_data['5'], $button_data['6'], $button_data['7'],
 				$button_data['4'], $taxonomy );
+
 		} elseif ( $this->button_data_check( $button_data, 'image_galleries' ) ) {
 			$image_send_mode = apply_filters( 'teligro_image_send_mode', 'image' );
 			$product_id      = intval( end( $btnData ) );
+
 			if ( get_post_status( $product_id ) === 'publish' ) {
 				$image_size = $this->get_option( 'image_size' );
 				$this->telegram->answerCallbackQuery( __( 'Galleries',
 						$this->plugin_key ) . ': ' . get_the_title( $product_id ) );
-				$_product  = new \WC_Product( $product_id );
+				$_product  = new WC_Product( $product_id );
 				$galleries = $_product->get_gallery_image_ids();
 				if ( is_array( $galleries ) && count( $galleries ) ) {
 					$keyboards = null;
@@ -707,16 +747,15 @@ class WooCommerce extends Teligro {
 				$this->telegram->answerCallbackQuery( __( 'The product does not exist', $this->plugin_key ) );
 			}
 		} elseif ( $this->button_data_check( $button_data, 'add_to_cart' ) ) {
-			$button_data = $btnData;
-			if ( get_post_status( $button_data['3'] ) === 'publish' ) {
-				$in_cart      = $this->check_cart( $button_data['3'] );
-				$can_to_cart  = $this->can_to_cart( $button_data['3'] );
-				$can_to_cart_ = $this->can_to_cart( $button_data['3'], true );
+			if ( get_post_status( $btnData['3'] ) === 'publish' ) {
+				$in_cart      = $this->check_cart( $btnData['3'] );
+				$can_to_cart  = $this->can_to_cart( $btnData['3'] );
+				$can_to_cart_ = $this->can_to_cart( $btnData['3'], true );
 				$alert        = false;
 				if ( $in_cart )
-					$message = __( 'Remove from Cart:', $this->plugin_key ) . ' ' . get_the_title( $button_data['3'] );
+					$message = __( 'Remove from Cart:', $this->plugin_key ) . ' ' . get_the_title( $btnData['3'] );
                 elseif ( $can_to_cart )
-					$message = __( 'Add to Cart:', $this->plugin_key ) . ' ' . get_the_title( $button_data['3'] );
+					$message = __( 'Add to Cart:', $this->plugin_key ) . ' ' . get_the_title( $btnData['3'] );
 				else {
 					$message = __( 'Please select product variations:', $this->plugin_key ) . ' ' . $can_to_cart_;
 					$alert   = true;
@@ -725,15 +764,16 @@ class WooCommerce extends Teligro {
 
 				// Add or Remove form Cart
 				if ( $in_cart == true || $can_to_cart )
-					$this->add_to_cart( $button_data['3'], ! $in_cart );
+					$this->add_to_cart( $btnData['3'], ! $in_cart );
 
-				$product   = $this->query( array( 'p' => $button_data['3'], 'post_type' => 'product' ) );
-				$keyboard  = $this->product_keyboard( $product, $button_data['4'] );
+				$product   = $this->query( array( 'p' => $btnData['3'], 'post_type' => 'product' ) );
+				$keyboard  = $this->product_keyboard( $product, $btnData['4'] );
 				$keyboards = $this->telegram->keyboard( $keyboard, 'inline_keyboard' );
-				$this->telegram->editMessageReplyMarkup( $keyboards, $button_data['4'] );
+				$this->telegram->editMessageReplyMarkup( $keyboards, $btnData['4'] );
 			} else {
 				$this->telegram->answerCallbackQuery( __( 'The product does not exist', $this->plugin_key ) );
 			}
+
 		} elseif ( $this->button_data_check( $button_data, 'product_detail' ) ) {
 			$product_id = intval( end( $btnData ) );
 			if ( get_post_status( $product_id ) === 'publish' ) {
@@ -744,6 +784,7 @@ class WooCommerce extends Teligro {
 			} else {
 				$this->telegram->answerCallbackQuery( __( 'The product does not exist', $this->plugin_key ) );
 			}
+
 		} elseif ( $this->button_data_check( $button_data, 'product_page_' ) ) {
 			$current_page = intval( $this->user['page'] ) == 0 ? 1 : intval( $this->user['page'] );
 			if ( $button_data == 'product_page_next' )
@@ -767,6 +808,7 @@ class WooCommerce extends Teligro {
 			);
 			$products = $this->query( $args );
 			$this->send_products( $products );
+
 		} elseif ( $this->button_data_check( $button_data, 'product_category' ) ) {
 			$this->update_user( array( 'page' => 1 ) );
 			$product_category_id = intval( end( $btnData ) );
@@ -784,6 +826,7 @@ class WooCommerce extends Teligro {
 			} else {
 				$this->telegram->answerCallbackQuery( __( 'Product Category Invalid!', $this->plugin_key ) );
 			}
+
 		} elseif ( $this->button_data_check( $button_data, 'confirm_empty_cart' ) ) {
 			$message_id = intval( end( $btnData ) );
 			$this->telegram->answerCallbackQuery( $this->words['confirm_empty_cart'] );
@@ -801,14 +844,17 @@ class WooCommerce extends Teligro {
 			);
 			$keyboards = $this->telegram->keyboard( $keyboard, 'inline_keyboard' );
 			$this->telegram->editMessageReplyMarkup( $keyboards, $message_id );
+
 		} elseif ( $this->button_data_check( $button_data, 'empty_cart_no' ) ) {
 			$message_id = intval( end( $btnData ) );
 			$this->cart( $message_id );
+
 		} elseif ( $this->button_data_check( $button_data, 'empty_cart_yes' ) ) {
 			$message_id = intval( end( $btnData ) );
 			$this->telegram->answerCallbackQuery( $this->words['cart_emptied'] );
 			$this->telegram->editMessageText( $this->words['cart_emptied'], $message_id );
 			$this->update_user( array( 'cart' => serialize( array() ) ) );
+
 		} elseif ( $this->button_data_check( $button_data, 'refresh_cart' ) ) {
 			$message_id = intval( end( $btnData ) );
 			$this->telegram->answerCallbackQuery( $this->words['refresh_cart'] );
@@ -1136,6 +1182,7 @@ class WooCommerce extends Teligro {
 					if ( count( $terms_d ) )
 						$terms_r[] = $terms_d;
 					$keyboard = array_merge( $keyboard, $terms_r );
+
 					// is taxonomy variation
 				} elseif ( $variation['is_taxonomy'] == 1 ) {
 					$terms = get_the_terms( $product['ID'], $variation['name'] );
@@ -1276,7 +1323,8 @@ class WooCommerce extends Teligro {
 							'text'          => $this->words['next_page'],
 							'callback_data' => 'product_page_next'
 						);
-					if ( is_rtl() )
+
+					if ( is_rtl() && count( $keyboard[1] ) > 1 )
 						$keyboard[1] = array_reverse( $keyboard[1] );
 				}
 				$keyboards = $this->telegram->keyboard( $keyboard, 'inline_keyboard' );
@@ -1405,7 +1453,7 @@ class WooCommerce extends Teligro {
 
 		if ( $message_id == null )
 			$this->telegram->sendMessage( $result );
-        elseif ( $message_id != null && $refresh )
+        elseif ( $refresh )
 			$this->telegram->editMessageText( $result, $message_id );
 
 		if ( count( $keyboard ) ) {
@@ -1498,14 +1546,17 @@ class WooCommerce extends Teligro {
 	}
 
 	function woocommerce_payment_complete( $order_id ) {
+		if ( ! isset( $this->options['empty_cart_after_wc_payment_complete'] ) )
+			return;
+
 		$order = wc_get_order( $order_id );
 		$user  = $order->get_user();
 		if ( $user ) {
 			$user = $this->set_user( array( 'wp_id' => $user->ID ) );
 			if ( $user === null )
 				return;
-			if ( isset( $this->options['empty_cart_after_wc_payment_complete'] ) )
-				$this->update_user( array( 'cart' => serialize( array() ) ) );
+
+			$this->update_user( array( 'cart' => serialize( array() ) ) );
 		}
 	}
 

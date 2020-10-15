@@ -2,14 +2,15 @@
 
 namespace teligro;
 
+use WP_Query;
+
 if ( ! defined( 'ABSPATH' ) )
 	exit;
 
 class Channel extends Teligro {
 	public static $instance = null;
-	protected $tabID = 'channel-teligro-tab';
+	protected $tabID = 'channel-teligro-tab', $post_types;
 	public $excerpt_length = 100, $max_channel = 10;
-	protected $post_types;
 
 	public function __construct() {
 		parent::__construct();
@@ -233,11 +234,17 @@ class Channel extends Teligro {
 							)
 						);
 					}
-					$query = new \WP_Query( $args );
+					$query = new WP_Query( $args );
 					if ( $query->have_posts() ) {
 						$query->the_post();
 						$post_id = get_the_ID();
-						$this->send_to_channel( $post_id, $options['channel_username'][ $k ], $k );
+
+						if ( ! function_exists( 'wp_check_post_lock' ) )
+							require_once( ABSPATH .
+							              str_replace( '/', DIRECTORY_SEPARATOR, '/wp-admin/includes/post.php' ) );
+
+						if ( wp_check_post_lock( $post_id ) === false )
+							$this->send_to_channel( $post_id, $options['channel_username'][ $k ], $k );
 					}
 				}
 			}
@@ -608,7 +615,6 @@ class Channel extends Teligro {
 
 	function settings_content() {
 		$this->options = get_option( $this->plugin_key );
-
 		?>
         <div id="<?php echo $this->tabID ?>-content" class="teligro-tab-content hidden">
             <table>
